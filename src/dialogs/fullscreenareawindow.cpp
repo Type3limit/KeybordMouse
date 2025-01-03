@@ -9,7 +9,7 @@
 #include <QKeyEvent>
 #include <QScreen>
 #include <QApplication>
-
+#include <QDebug>
 #include "ElaTheme.h"
 
 #include "helpers/mouseeventhelper.h"
@@ -148,7 +148,7 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
             }
         }
     }
-    qDebug<<"paint end";
+    qDebug()<<"paint end";
 }
 
 
