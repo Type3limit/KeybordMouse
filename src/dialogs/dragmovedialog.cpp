@@ -260,7 +260,7 @@ void DragMoveWidget::mousePressEvent(QMouseEvent* e)
     {
         return;
     }
-    m_pos = e->globalPos() - mapToGlobal({0, 0});
+    m_pos = e->globalPos() - mapToGlobal(QPoint{0, 0});
     m_leftButtonPressed = true;
 }
 

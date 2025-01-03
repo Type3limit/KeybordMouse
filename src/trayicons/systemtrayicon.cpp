@@ -2,7 +2,6 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QTimer>
-#include <QDesktopWidget>
 #include <QLayout>
 #include <QScreen>
 #include <QLayout>
@@ -26,7 +25,6 @@ SystemTrayIcon::SystemTrayIcon(QWidget* parent)
     : QWidget(parent)
     , m_systemTrayIcon(new QSystemTrayIcon(this))
     , m_menu(new ElaMenu())
-    , m_trayPos(new MsgTrayPos())
 {
     connect(m_systemTrayIcon, &QSystemTrayIcon::activated,
             this, [&](QSystemTrayIcon::ActivationReason reason)
@@ -54,21 +52,17 @@ SystemTrayIcon::SystemTrayIcon(QWidget* parent)
 
     m_systemTrayIcon->setIcon(m_normalIcon);
 
-    m_systemTrayIcon->setToolTip(QStringLiteral("屏幕录制"));
+    m_systemTrayIcon->setToolTip(QStringLiteral("KeybordMouse"));
 
     setMouseTracking(true);
 
-#ifdef WIN32
-    m_iconPtr = new NOTIFYICONDATAW();
-    createTrayIcon();
-    m_trayPos->SetNotifyIconInfo(HWND(this->winId()), 1, WM_TRAYNOTIFY);
-#else
-    m_systemTrayIcon->show();
-#endif
+
     initConfig();
     initWindow();
     initSignals();
     initMenus();
+
+    m_systemTrayIcon->show();
 }
 
 SystemTrayIcon::~SystemTrayIcon()
@@ -77,111 +71,22 @@ SystemTrayIcon::~SystemTrayIcon()
     {
         m_menu->deleteLater();
     }
-
-#ifdef WIN32
-    if (m_iconPtr)
-    {
-        delete static_cast<NOTIFYICONDATAW*>(m_iconPtr);
-    }
-    removeTrayIcon();
-#endif
 }
 
 void SystemTrayIcon::showIcon()
 {
-#ifdef WIN32
-    createTrayIcon();
-#else
+
     m_systemTrayIcon->show();
-#endif
+
 }
 
 void SystemTrayIcon::hideIcon()
 {
-#ifdef WIN32
-    removeTrayIcon();
-#else
+
     m_systemTrayIcon->hide();
-#endif
+
 }
 
-#ifdef WIN32
-
-bool SystemTrayIcon::nativeEventFilter(const QByteArray& eventType, void* message, long* result)
-{
-    if (eventType == "windows_generic_MSG" || eventType == "windows_dispatcher_MSG")
-    {
-        MSG* pMsg = reinterpret_cast<MSG*>(message);
-        if (pMsg->message == WM_TRAYNOTIFY)
-        {
-            switch (pMsg->lParam)
-            {
-            case WM_MOUSEMOVE:
-                {
-                    m_trayPos->OnMouseMove();
-                    break;
-                }
-
-            case WM_MOUSEHOVER:
-                {
-                    break;
-                }
-            case WM_MOUSELEAVE:
-                {
-                    break;
-                }
-            case WM_LBUTTONDBLCLK:
-                {
-                    emit GlobalSignal::instance()->requestOpenSettingWindow();
-                    break;
-                }
-            case WM_LBUTTONDOWN:
-                {
-                    emit GlobalSignal::instance()->requestOpenFullScreenWindow();
-                    break;
-                }
-            case WM_RBUTTONDOWN:
-                {
-                    m_menu->exec(QCursor::pos());
-                    break;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
-void SystemTrayIcon::createTrayIcon()
-{
-    NOTIFYICONDATAW nid = *((NOTIFYICONDATAW*)m_iconPtr);
-    memset(&nid, 0, sizeof(nid));
-    nid.cbSize = sizeof(NOTIFYICONDATA);
-    nid.uID = 1;
-    nid.hWnd = (HWND)winId(); // 获取 QWidget 窗口句柄
-    nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-    nid.uCallbackMessage = WM_TRAYNOTIFY;
-    nid.hIcon = qt_pixmapToWinHICON(m_normalIcon.pixmap(16, 16));
-    wcscpy_s(nid.szTip, L"屏幕录制");
-
-    Shell_NotifyIconW(NIM_ADD, &nid);
-    // 启动鼠标悬浮事件
-    TRACKMOUSEEVENT tme;
-    tme.cbSize = sizeof(tme);
-    tme.dwFlags = TME_HOVER | TME_LEAVE;
-    tme.hwndTrack = nid.hWnd;
-    tme.dwHoverTime = 1; // 设置为非常短的时间来激活 hover 事件
-    TrackMouseEvent(&tme);
-    DestroyIcon(nid.hIcon);
-}
-
-void SystemTrayIcon::removeTrayIcon()
-{
-    NOTIFYICONDATAW nid = *((NOTIFYICONDATAW*)m_iconPtr);
-    Shell_NotifyIconW(NIM_DELETE, &nid);
-}
-
-#endif
 
 void SystemTrayIcon::initConfig()
 {
@@ -266,7 +171,9 @@ void SystemTrayIcon::initSignals()
             },primary).get();
 
             m_fullScreenAreaWindow->setGeometry(screenInUse->geometry());
+            m_fullScreenAreaWindow->raise();
             m_fullScreenAreaWindow->setFocus();
+            m_fullScreenAreaWindow->activateWindow();
             m_fullScreenAreaWindow->exec();
         }
     });
@@ -274,23 +181,11 @@ void SystemTrayIcon::initSignals()
 
 void SystemTrayIcon::updateTrayIconTip(const QString& tip)
 {
-#ifdef WIN32
-    NOTIFYICONDATAW nid = *((NOTIFYICONDATAW*)m_iconPtr);
-    wcscpy_s(nid.szTip, tip.toStdWString().data());
-    Shell_NotifyIconW(NIM_MODIFY, &nid);
-#else
+
     m_systemTrayIcon->setToolTip(tip);
-#endif
 }
 
 void SystemTrayIcon::setIcon(QIcon ico)
 {
-#ifdef WIN32
-    NOTIFYICONDATAW nid = *((NOTIFYICONDATAW*)m_iconPtr);
-    nid.hIcon = qt_pixmapToWinHICON(QIcon(ico).pixmap(16, 16));
-    Shell_NotifyIconW(NIM_MODIFY, &nid);
-    DestroyIcon(nid.hIcon);
-#else
     m_systemTrayIcon->setIcon(ico);
-#endif
 }

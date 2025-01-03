@@ -739,13 +739,6 @@ constexpr SourcesOperation<T> from(const QList<T> &sources)
 }
 
 template<typename T>
-///将集合变更为带一系列操作的对象
-constexpr SourcesOperation<T> from(const QVector<T> &sources)
-{
-    return SourcesOperation(sources.toList());
-}
-
-template<typename T>
 ///拿到对单个对象的操作
 constexpr Optional<T> option(const T &singleObj)
 {

@@ -149,8 +149,8 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event)
             }
             else
             {
-                auto curLeftRect = QRect{xPos,yPos,xDistance / 2,yDistance};
-                auto curRightRect = QRect{xPos+xDistance/2,yPos,xDistance/2,yDistance};
+                auto curLeftRect = QRect{(int)xPos,(int)yPos,(int)xDistance / 2,(int)yDistance};
+                auto curRightRect = QRect{(int)(xPos+xDistance/2),(int)yPos,(int)xDistance/2,(int)yDistance};
                 painter.drawText(curLeftRect,Qt::AlignCenter,screenStrInUse[row]);
                 painter.drawText(curRightRect,Qt::AlignCenter,screenStrInUse[column]);
             }
@@ -162,29 +162,17 @@ void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Escape)
     {
-        close();
-        event->accept();
+        processBackspace();
+        event->ignore();
     }
     else if (event->key()== Qt::Key_Enter)
     {
-        close();
         event->ignore();
     }
     else if (event->key()==Qt::Key_Backspace)
     {
-        if (m_thirdPos>=0)
-        {
-            m_thirdPos = -1;
-        }
-        else if (m_secondPos >=0)
-        {
-            m_secondPos = -1;
-        }
-        else if (m_firstPos>=0)
-        {
-            m_firstPos = -1;
-        }
-        event->accept();
+        processBackspace();
+        event->ignore();
     }
     else if (event->key()==Qt::Key_Tab&&event->modifiers()==Qt::AltModifier)
     {
@@ -381,4 +369,24 @@ void FullScreenAreaWindow::onKeyMoveMouse()
 void FullScreenAreaWindow::resizeEvent(QResizeEvent* event)
 {
     QDialog::resizeEvent(event);
+}
+
+void FullScreenAreaWindow::processBackspace()
+{
+    if (m_thirdPos>=0)
+    {
+        m_thirdPos = -1;
+    }
+    else if (m_secondPos>=0)
+    {
+        m_secondPos = -1;
+    }
+    else if (m_firstPos>=0)
+    {
+        m_firstPos = -1;
+    }
+    else
+    {
+        close();
+    }
 }

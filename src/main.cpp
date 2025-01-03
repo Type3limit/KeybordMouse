@@ -10,10 +10,12 @@
 #include <QMenu>
 #include <QTcpSocket>
 #include <QTcpServer>
+#include <QTimer>
 
 #include "ElaApplication.h"
 #include "helpers/config.h"
 #include "helpers/debug.h"
+#include "helpers/globalsignal.h"
 #include "helpers/messages.h"
 #include "trayicons/systemtrayicon.h"
 
@@ -125,9 +127,6 @@ int main(int argc, char* argv[])
     SetUnhandledExceptionFilter(exceptionCallback);
 #endif
 
-    // RecordingWindow window(server, token, port, nullptr);
-    // window.show();
-
     // 监听来自其他实例的消息
     QObject::connect(&localServer, &QTcpServer::newConnection, [&]() {
         QTcpSocket *clientSocket = localServer.nextPendingConnection();
@@ -141,11 +140,12 @@ int main(int argc, char* argv[])
     });
 
     SystemTrayIcon trayIcon;
-
-#ifdef WIN32
-    qApp->installNativeEventFilter(&trayIcon);
-#endif
     QApplication::setQuitOnLastWindowClosed(false);
+    QTimer::singleShot(500, &trayIcon, [&]()
+    {
+        emit GlobalSignal::instance()->requestShowMessage(u8"屏幕键盘已启动");
+        qApp->processEvents();
+    });
     int code =  QApplication::exec();
     localServer.close();
 #ifdef WIN32

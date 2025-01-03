@@ -18,6 +18,7 @@ UserMessageBox::UserMessageBox(QWidget* parent) :
     // 1. set transparent,
     // 2. override painEvent
     // 3. set border-radius in style sheet
+    setWindowFlags(windowFlags()|Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
 }
 
@@ -80,7 +81,7 @@ void UserMessageBox::setButton1Name(const QString& buttonTitle)
 void UserMessageBox::paintEvent(QPaintEvent*)
 {
     QStyleOption option;
-    option.init(this);
+    option.initFrom(this);
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &option, &painter, this);
 }

@@ -442,7 +442,7 @@ public:
         return str == nullptr || str.isNull() || str.isEmpty();
     }
     /// read text from file
-    static inline QString readAllText(const QString &filePath, const char *encode = "utf-8")
+    static inline QString readAllText(const QString &filePath, const QStringConverter::Encoding enc=QStringConverter::Encoding::Utf8)
     {
 
         QString result;
@@ -452,7 +452,7 @@ public:
         if (!curFile.open(QIODevice::ReadOnly | QIODevice::Text))
             return result;
         QTextStream in(&curFile);
-        in.setCodec(encode);
+        in.setEncoding(enc);
         while (!in.atEnd()) {
             result.append(in.readLine());
         }
@@ -460,14 +460,15 @@ public:
         return result;
     }
     ///write text to file
-    static inline void writeAllText(const QString &filePath, const QString &content, const char *encode = "utf-8")
+    static inline void writeAllText(const QString &filePath, const QString &content,
+        const QStringConverter::Encoding enc=QStringConverter::Encoding::Utf8)
     {
 
         QFile file(filePath);
         file.open(
             QIODevice::WriteOnly | QIODevice::Text);//if the file is not exist,file will automatic created when writing.
         QTextStream out(&file);
-        out.setCodec(encode);
+        out.setEncoding(enc);
         out << content;
         file.close();
     }
