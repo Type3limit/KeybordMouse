@@ -9,7 +9,6 @@
 #include <QDebug>
 #include <qhotkey.h>
 
-#include "traypos.h"
 #include "dialogs/fullscreenareawindow.h"
 #include "dialogs/settingwindow.h"
 #include "dialogs/usermessagebox.h"
@@ -109,7 +108,7 @@ void SystemTrayIcon::initWindow()
 void SystemTrayIcon::initMenus()
 {
     m_acts[ShowWindow] = new QAction(QStringLiteral("显示窗口"), m_menu);
-    m_acts[ShowWindow]->setIcon(QIcon(":/icons/images/areas.svg"));
+    m_acts[ShowWindow]->setIcon(QIcon(":/icons/images/Window.svg"));
     connect(m_acts[ShowWindow], &QAction::triggered, this, [&]()
     {
         emit GlobalSignal::instance()->requestOpenFullScreenWindow();
@@ -174,9 +173,9 @@ void SystemTrayIcon::initSignals()
             m_fullScreenAreaWindow->raise();
             m_fullScreenAreaWindow->setFocus();
             m_fullScreenAreaWindow->activateWindow();
-            m_fullScreenAreaWindow->exec();
+            m_fullScreenAreaWindow->show();
         }
-    });
+    },Qt::QueuedConnection);
 }
 
 void SystemTrayIcon::updateTrayIconTip(const QString& tip)

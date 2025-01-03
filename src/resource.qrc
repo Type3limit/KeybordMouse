@@ -2,6 +2,7 @@
     <qresource prefix="/icons">
         <file>images/keybord.svg</file>
         <file>images/setting.svg</file>
+        <file>images/Window.svg</file>
         <file>images/close.svg</file>
         <file>images/minimize.svg</file>
         <file>images/fullscreen.svg</file>
