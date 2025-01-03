@@ -1,0 +1,44 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>images/keybord.svg</file>
+        <file>images/setting.svg</file>
+        <file>images/close.svg</file>
+        <file>images/minimize.svg</file>
+        <file>images/fullscreen.svg</file>
+        <file>images/areas.svg</file>
+        <file>images/micphone.svg</file>
+        <file>images/micphone_mute.svg</file>
+        <file>images/player.svg</file>
+        <file>images/player_mute.svg</file>
+        <file>images/stop_recoding.svg</file>
+        <file>images/stop_recoding_minimize.svg</file>
+        <file>images/centerAnchor.svg</file>
+        <file>images/comboBoxExpander.svg</file>
+        <file>images/expander_expanded.svg</file>
+        <file>images/expander_unexpand.svg</file>
+        <file>images/lock.svg</file>
+        <file>images/start.svg</file>
+        <file>images/checkbox_checked.svg</file>
+        <file>images/checkbox_unchecked.svg</file>
+        <file>images/recording.svg</file>
+        <file>images/warning.svg</file>
+        <file>images/question.svg</file>
+        <file>images/information.svg</file>
+        <file>images/error.svg</file>
+        <file>images/folder.svg</file>
+        <file>images/rightarrow.svg</file>
+        <file>images/downarrow.svg</file>
+        <file>images/expand_down.svg</file>
+        <file>images/expand_up.svg</file>
+        <file>images/update.png</file>
+        <file>images/preFrame.svg</file>
+        <file>images/nextFrame.svg</file>
+        <file>images/play.svg</file>
+        <file>images/pause.svg</file>
+        <file>images/slider.svg</file>
+        <file>images/login.svg</file>
+        <file>images/minimal.svg</file>
+        <file>images/continue.svg</file>
+        <file>images/toolbar_menu_checked_icon.svg</file>
+    </qresource>
+</RCC>

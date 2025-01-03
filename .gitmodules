@@ -1,0 +1,6 @@
+[submodule "thirdPart/QHotkey"]
+	path = thirdPart/QHotkey
+	url = https://github.com/Skycoder42/QHotkey
+[submodule "thirdPart/ElaWidgetTools"]
+	path = thirdPart/ElaWidgetTools
+	url = https://github.com/Liniyous/ElaWidgetTools
