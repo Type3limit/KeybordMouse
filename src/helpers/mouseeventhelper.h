@@ -125,9 +125,6 @@ public:
 
     // 执行点击操作
     static bool click(Button button, ClickType clickType = ClickType::Single) {
-        POINT pos;
-        GetCursorPos(&pos);
-        SetCursorPos(pos.x,pos.y);
         int clickCount = (clickType == ClickType::Single) ? 1 :
                         (clickType == ClickType::Double) ? 2 : 3;
 
