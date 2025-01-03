@@ -70,6 +70,14 @@ SystemTrayIcon::~SystemTrayIcon()
     {
         m_menu->deleteLater();
     }
+    if (m_fullScreenAreaWindow)
+    {
+        m_fullScreenAreaWindow->deleteLater();
+    }
+    if (m_settingWindow)
+    {
+        m_settingWindow->deleteLater();
+    }
 }
 
 void SystemTrayIcon::showIcon()
@@ -99,9 +107,9 @@ void SystemTrayIcon::initConfig()
 
 void SystemTrayIcon::initWindow()
 {
-    m_fullScreenAreaWindow = new FullScreenAreaWindow(this);
+    m_fullScreenAreaWindow = new FullScreenAreaWindow(nullptr);
     m_fullScreenAreaWindow->setAttribute(Qt::WA_DeleteOnClose,false);
-    m_settingWindow = new SettingWindow(this);
+    m_settingWindow = new SettingWindow(nullptr);
     m_settingWindow->setAttribute(Qt::WA_DeleteOnClose,false);
 }
 
@@ -172,10 +180,11 @@ void SystemTrayIcon::initSignals()
             qDebug()<<"full screen window start in screen:"<<screenInUse->name();
             m_fullScreenAreaWindow->setGeometry(screenInUse->geometry());
             qDebug()<<"full screen window with geometry:" << screenInUse->geometry();
-            m_fullScreenAreaWindow->raise();
-            m_fullScreenAreaWindow->activateWindow();
-            m_fullScreenAreaWindow->show();
-            m_fullScreenAreaWindow->setFocus();
+            // m_fullScreenAreaWindow->raise();
+            // m_fullScreenAreaWindow->activateWindow();
+            m_fullScreenAreaWindow->hide();
+            m_fullScreenAreaWindow->showNormal();
+            m_fullScreenAreaWindow->setFocus(Qt::FocusReason::ActiveWindowFocusReason);
             qDebug()<<"invoke full screen window finished";
         }
         else

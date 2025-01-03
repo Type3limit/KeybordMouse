@@ -5,9 +5,11 @@
 #ifndef FULLSCREENAREAWINDOW_H
 #define FULLSCREENAREAWINDOW_H
 #include <QDialog>
+#include <QEvent>
+
 #include "helpers/config.h"
 
-class FullScreenAreaWindow:public QDialog {
+class FullScreenAreaWindow:public QWidget {
 
 public:
     struct CutInfo {
@@ -38,6 +40,13 @@ protected:
     void processBackspace();
     void showEvent(QShowEvent* event) override;
 
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+
+    void closeEvent(QCloseEvent* event) override;
+    bool event(QEvent* event) override;
+
     ScreenOptionMode m_optionMode = ScreenOptionMode::QWER;
 
     ScreenOptionMode m_subCellMode = ScreenOptionMode::QWER;
@@ -52,5 +61,12 @@ protected:
 
 
 };
+
+inline void FullScreenAreaWindow::closeEvent(QCloseEvent* event)
+{
+    resetStatus();
+    QWidget::closeEvent(event);
+}
+
 
 #endif //FULLSCREENAREAWINDOW_H

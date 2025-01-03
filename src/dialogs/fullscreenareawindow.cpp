@@ -11,17 +11,19 @@
 #include <QApplication>
 #include <QDebug>
 #include "ElaTheme.h"
+#include "helpers/clickthroughwindow.h"
 
 #include "helpers/mouseeventhelper.h"
 
 
 FullScreenAreaWindow::FullScreenAreaWindow(QWidget* parent)
-    :QDialog(parent)
+    :QWidget(parent)
 {
-    setWindowFlags(windowFlags()|Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint|Qt::SubWindow);
-    setAttribute(Qt::WA_TranslucentBackground);
-    setAttribute(Qt::WA_TransparentForMouseEvents);
+
     setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(false);
+
+    ClickThroughWindow::enableClickThrough(this);
 }
 
 void FullScreenAreaWindow::setOptionMode(ScreenOptionMode fullScreenMode, ScreenOptionMode subCellMode)
@@ -185,6 +187,7 @@ void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
     }
     else if (event->key()==Qt::Key_Space)
     {
+        close();
         if (event->modifiers()&Qt::ShiftModifier)
         {
             MouseEventHelper::click(MouseEventHelper::Button::Right);
@@ -193,7 +196,7 @@ void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
         {
             MouseEventHelper::click(MouseEventHelper::Button::Left);
         }
-        event->accept();
+        event->ignore();
     }
     else if (event->key()==Qt::Key_Left)
     {
@@ -316,7 +319,7 @@ void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
                 resetStatus();
             }
         }
-        QDialog::keyPressEvent(event);
+        QWidget::keyPressEvent(event);
     }
     update();
 }
@@ -324,7 +327,7 @@ void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
 
 void FullScreenAreaWindow::keyReleaseEvent(QKeyEvent* event)
 {
-    QDialog::keyReleaseEvent(event);
+    QWidget::keyReleaseEvent(event);
 }
 
 void FullScreenAreaWindow::onKeyMoveMouse()
@@ -363,7 +366,7 @@ void FullScreenAreaWindow::onKeyMoveMouse()
 
 void FullScreenAreaWindow::resizeEvent(QResizeEvent* event)
 {
-    QDialog::resizeEvent(event);
+    QWidget::resizeEvent(event);
 }
 
 void FullScreenAreaWindow::processBackspace()
@@ -389,5 +392,34 @@ void FullScreenAreaWindow::processBackspace()
 void FullScreenAreaWindow::showEvent(QShowEvent* event)
 {
     qDebug()<<"FullScreenAreaWindow  show";
-    QDialog::showEvent(event);
+    QWidget::showEvent(event);
+}
+
+void FullScreenAreaWindow::mousePressEvent(QMouseEvent* event)
+{
+    qDebug()<<"mouse pressed";
+    QWidget::mousePressEvent(event);
+}
+
+void FullScreenAreaWindow::mouseReleaseEvent(QMouseEvent* event)
+{
+    qDebug()<<"mouse release";
+    QWidget::mouseReleaseEvent(event);
+}
+
+void FullScreenAreaWindow::mouseMoveEvent(QMouseEvent* event)
+{
+    qDebug()<<"mouse move";
+    QWidget::mouseMoveEvent(event);
+}
+
+bool FullScreenAreaWindow::event(QEvent* event)
+{
+    if (event->type() == QEvent::MouseButtonPress ||
+       event->type() == QEvent::MouseButtonRelease ||
+       event->type() == QEvent::MouseMove) {
+        clearFocus();
+        return false; // 让事件继续传递
+    }
+    return QWidget::event(event);
 }
