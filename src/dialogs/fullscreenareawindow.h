@@ -36,6 +36,7 @@ protected:
     void onKeyMoveMouse();
     void resizeEvent(QResizeEvent* event) override;
     void processBackspace();
+    void showEvent(QShowEvent* event) override;
 
     ScreenOptionMode m_optionMode = ScreenOptionMode::QWER;
 

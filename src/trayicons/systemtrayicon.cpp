@@ -163,17 +163,24 @@ void SystemTrayIcon::initSignals()
     {
         if (m_fullScreenAreaWindow)
         {
+            qDebug()<<"try invoke full screen window";
             QScreen* primary = QGuiApplication::primaryScreen();
             auto screenInUse = from(QGuiApplication::screens()).firstOf([&](QScreen* scr)
             {
                 return scr->geometry().contains(QCursor::pos());
             },primary).get();
-
+            qDebug()<<"full screen window start in screen:"<<screenInUse->name();
             m_fullScreenAreaWindow->setGeometry(screenInUse->geometry());
+            qDebug()<<"full screen window with geometry:" << screenInUse->geometry();
             m_fullScreenAreaWindow->raise();
-            m_fullScreenAreaWindow->setFocus();
             m_fullScreenAreaWindow->activateWindow();
             m_fullScreenAreaWindow->show();
+            m_fullScreenAreaWindow->setFocus();
+            qDebug()<<"invoke full screen window finished";
+        }
+        else
+        {
+            qDebug()<<"full screen window not exist";
         }
     },Qt::QueuedConnection);
 }

@@ -65,98 +65,93 @@ QScreen* FullScreenAreaWindow::currentScreen()
 }
 
 
-void FullScreenAreaWindow::paintEvent(QPaintEvent* event)
-{
-
+void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
+    qDebug()<<"paint start";
     QPainter painter(this);
-
-    painter.setRenderHints(QPainter::Antialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     auto screenGeometry = currentScreen()->geometry();
-
     auto screenStrInUse = ScreenOptionModeStr[m_optionMode];
-
     auto cellStrInUse = ScreenOptionModeStr[m_subCellMode];
 
-    painter.fillRect(screenGeometry,QColor::fromRgba(qRgba(0,0,0,128)));
+    int drawCount = screenStrInUse.count();
+    int xDistance = screenGeometry.width() / drawCount;
+    int yDistance = screenGeometry.height() / drawCount;
 
-    //绘制方格背景
-    auto drawCount = screenStrInUse.count();
+    // 填充半透明背景
+    painter.fillRect(screenGeometry, QColor(0, 0, 0, 128));
 
-    auto xDistance = screenGeometry.width()/drawCount;
-    auto yDistance = screenGeometry.height()/drawCount;
-    QColor color(255, 255, 255, 128);  // 红色，alpha值128为50%透明度
+    // 配置基本画笔和字体
+    QColor gridColor(255, 255, 255, 128);
+    QPen pen(gridColor, 1);
+    painter.setPen(pen);
 
-    auto fontname = painter.font().family();
-    QPen pen(color);
-    pen.setWidth(1);
-    painter.setFont(QFont(fontname,12));
+    QFont defaultFont = painter.font();
+    QFont smallFont = defaultFont;
+    smallFont.setPointSize(6);
 
-    for (int i = 0;i<drawCount;i++)//横向
-    {
-        auto yPos = i*yDistance;
-        painter.drawLine(0,yPos,screenGeometry.width(),yPos);
-        for (int j = 0;j<drawCount;j++)
-        {
-            auto xPos = j*xDistance;
-            painter.setPen(pen);
-            painter.drawLine(xPos,0,xPos,screenGeometry.height());
-        }
+    QBrush selectedRowBrush(QColor(60, 179, 113, 128));
+    QBrush selectedCellBrush(QColor(152, 251, 152, 128));
+
+    // 绘制主网格线
+    for (int i = 0; i <= drawCount; ++i) {
+        int x = i * xDistance;
+        int y = i * yDistance;
+        painter.drawLine(0, y, screenGeometry.width(), y); // 水平线
+        painter.drawLine(x, 0, x, screenGeometry.height()); // 垂直线
     }
-    QBrush fillBrush(QColor::fromRgba(qRgba(152,251,152,128)));
-    //填充文字
-    for (int row = 0;row<drawCount;row++)
-    {
 
-        auto xPos = row*xDistance;
-        if (m_firstPos>=0&&m_secondPos<0&&row == m_firstPos)
-        {
+    // 填充网格和绘制文字
+    for (int row = 0; row < drawCount; ++row) {
+        int xPos = row * xDistance;
+        for (int col = 0; col < drawCount; ++col) {
+            int yPos = col * yDistance;
+            QRect cellRect(xPos, yPos, xDistance, yDistance);
 
-            auto curRect = QRect(xPos,0,xDistance,screenGeometry.height());
-            QBrush rowFillBrush(QColor(60,179,113,128));
-            painter.fillRect(curRect,rowFillBrush);
-        }
-        for (int column = 0;column<drawCount;column++)
-        {
-            auto yPos = column*yDistance;
-            if (m_firstPos>=0 && m_secondPos>=0 && row==m_firstPos&& column==m_secondPos)
-            {
-                auto curRect = QRect(xPos,yPos,xDistance,yDistance);
-                painter.fillRect(curRect,fillBrush);
-                //填充子格
-                auto size = getCellColumnAndRowCount(screenStrInUse[m_subCellMode].count()-1,curRect);
-                auto xSize = curRect.width()/(double)(size.width());
-                auto ySize = curRect.height()/(double)(size.height());
-                int cellIndex = 0;
-                for (int cellCol = 0 ; cellCol<size.height();cellCol++)
-                {
+            // 处理选中的行或单元格
+            if (m_firstPos >= 0 && row == m_firstPos) {
+                if (m_secondPos < 0) {
+                    // 选中整行
+                    painter.fillRect(cellRect, selectedRowBrush);
+                } else if (col == m_secondPos) {
+                    // 选中特定单元格
+                    painter.fillRect(cellRect, selectedCellBrush);
 
-                    auto cellY = yPos+cellCol*ySize;
-                    painter.drawLine(curRect.x(),cellY,curRect.x()+xDistance,cellY);
+                    // 绘制子格
+                    QSize subCellSize = getCellColumnAndRowCount(cellStrInUse.count() - 1, cellRect);
+                    double xSubSize = cellRect.width() / double(subCellSize.width());
+                    double ySubSize = cellRect.height() / double(subCellSize.height());
 
-                    for (int cellRow = 0;cellRow < size.width();cellRow++)
-                    {
-                        auto cellX = xPos+cellRow*xSize;
-                        painter.drawLine(cellX,curRect.y(),cellX,yDistance+curRect.y());
-                        auto cellRect = QRect(cellX,cellY,xSize,ySize);
+                    int cellIndex = 0;
+                    for (int subRow = 0; subRow < subCellSize.height(); ++subRow) {
+                        int subY = yPos + subRow * ySubSize;
+                        painter.drawLine(cellRect.left(), subY, cellRect.right(), subY);
+                        for (int subCol = 0; subCol < subCellSize.width(); ++subCol) {
+                            int subX = xPos + subCol * xSubSize;
+                            painter.drawLine(subX, cellRect.top(), subX, cellRect.bottom());
 
-                        painter.setFont(QFont(fontname,6));
-                        painter.drawText(cellRect,Qt::AlignCenter,cellStrInUse[cellIndex++]);
-                        painter.setFont(QFont(fontname,12));
+                            QRect subCellRect(subX, subY, xSubSize, ySubSize);
+                            painter.setFont(smallFont);
+                            painter.drawText(subCellRect, Qt::AlignCenter, cellStrInUse[cellIndex++]);
+                        }
                     }
+                    painter.setFont(defaultFont);
                 }
-
             }
-            else
-            {
-                auto curLeftRect = QRect{(int)xPos,(int)yPos,(int)xDistance / 2,(int)yDistance};
-                auto curRightRect = QRect{(int)(xPos+xDistance/2),(int)yPos,(int)xDistance/2,(int)yDistance};
-                painter.drawText(curLeftRect,Qt::AlignCenter,screenStrInUse[row]);
-                painter.drawText(curRightRect,Qt::AlignCenter,screenStrInUse[column]);
+
+            // 如果 m_thirdPos 小于 0，则继续绘制默认文字
+            if (m_thirdPos < 0) {
+                QRect leftHalfRect(xPos, yPos, xDistance / 2, yDistance);
+                QRect rightHalfRect(xPos + xDistance / 2, yPos, xDistance / 2, yDistance);
+                painter.drawText(leftHalfRect, Qt::AlignCenter, screenStrInUse[row]);
+                painter.drawText(rightHalfRect, Qt::AlignCenter, screenStrInUse[col]);
             }
         }
     }
+    qDebug<<"paint end";
 }
+
+
 
 void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
 {
@@ -389,4 +384,10 @@ void FullScreenAreaWindow::processBackspace()
     {
         close();
     }
+}
+
+void FullScreenAreaWindow::showEvent(QShowEvent* event)
+{
+    qDebug()<<"FullScreenAreaWindow  show";
+    QDialog::showEvent(event);
 }
