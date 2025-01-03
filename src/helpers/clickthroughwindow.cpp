@@ -10,7 +10,8 @@
     #include <X11/Xlib.h>
     #include <X11/extensions/shape.h>
 #elif defined(Q_OS_MAC)
-    #include <Cocoa/Cocoa.h>
+#include <CoreGraphics/CoreGraphics.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 bool ClickThroughWindow::enableClickThrough(QWidget* window) {
@@ -111,28 +112,55 @@ bool ClickThroughWindow::disableClickThroughLinux(QWidget* window) {
 
 #elif defined(Q_OS_MAC)
 bool ClickThroughWindow::enableClickThroughMac(QWidget* window) {
-    NSView* view = (__bridge NSView*)reinterpret_cast<void*>(window->winId());
-    if (!view) return false;
+    if (!window) return false;
+    // 获取窗口的 NSView 指针
+    void* nsViewPtr = reinterpret_cast<void*>(window->winId());
+    if (!nsViewPtr) return false;
 
-    NSWindow* nswindow = [view window];
-    if (!nswindow) return false;
+    // 获取窗口的 CGWindowID
+    CGWindowID windowID = (CGWindowID)[reinterpret_cast<NSView*>(nsViewPtr) window].windowNumber;
 
-    // Enable click-through
-    [nswindow setIgnoresMouseEvents:YES];
+    // 创建一个空的区域（点击穿透）
+    CGRegionRef emptyRegion = CGRegionCreateEmpty();
+
+    // 设置窗口的点击区域
+    CGSSetWindowShape(
+        CGMainDisplayID(), // 主显示器
+        windowID,          // 窗口 ID
+        0, 0,              // 偏移量
+        emptyRegion        // 空区域
+    );
+
+    // 释放区域
+    CGRegionRelease(emptyRegion);
 
     return true;
 }
 
 bool ClickThroughWindow::disableClickThroughMac(QWidget* window) {
-    NSView* view = (__bridge NSView*)reinterpret_cast<void*>(window->winId());
-    if (!view) return false;
+    if (!window) return false;
 
-    NSWindow* nswindow = [view window];
-    if (!nswindow) return false;
+    // 获取窗口的 NSView 指针
+    void* nsViewPtr = reinterpret_cast<void*>(window->winId());
+    if (!nsViewPtr) return false;
 
-    // Disable click-through
-    [nswindow setIgnoresMouseEvents:NO];
+    // 获取窗口的 CGWindowID
+    CGWindowID windowID = (CGWindowID)[reinterpret_cast<NSView*>(nsViewPtr) window].windowNumber;
 
+    // 获取窗口的原始区域
+    CGRect windowBounds = CGRectMake(0, 0, window->width(), window->height());
+    CGRegionRef windowRegion = CGRegionCreateWithRect(windowBounds);
+
+    // 恢复窗口的点击区域
+    CGSSetWindowShape(
+        CGMainDisplayID(), // 主显示器
+        windowID,          // 窗口 ID
+        0, 0,              // 偏移量
+        windowRegion       // 原始区域
+    );
+
+    // 释放区域
+    CGRegionRelease(windowRegion);
     return true;
 }
 #endif

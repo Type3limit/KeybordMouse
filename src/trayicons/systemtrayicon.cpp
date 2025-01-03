@@ -184,7 +184,7 @@ void SystemTrayIcon::initSignals()
             // m_fullScreenAreaWindow->activateWindow();
             m_fullScreenAreaWindow->hide();
             m_fullScreenAreaWindow->showNormal();
-            m_fullScreenAreaWindow->setFocus(Qt::FocusReason::ActiveWindowFocusReason);
+            m_fullScreenAreaWindow->setFocus(Qt::OtherFocusReason);
             qDebug()<<"invoke full screen window finished";
         }
         else

@@ -22,7 +22,6 @@ FullScreenAreaWindow::FullScreenAreaWindow(QWidget* parent)
 
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(false);
-
     ClickThroughWindow::enableClickThrough(this);
 }
 
@@ -68,7 +67,7 @@ QScreen* FullScreenAreaWindow::currentScreen()
 
 
 void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
-    qDebug()<<"paint start";
+
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
@@ -150,7 +149,6 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
             }
         }
     }
-    qDebug()<<"paint end";
 }
 
 
@@ -190,6 +188,7 @@ void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
         close();
         if (event->modifiers()&Qt::ShiftModifier)
         {
+            
             MouseEventHelper::click(MouseEventHelper::Button::Right);
         }
         else
