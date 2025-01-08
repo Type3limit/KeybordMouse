@@ -28,7 +28,7 @@ void SettingWindow::initUI()
     setWindowIconText(u8"设置");
     setUserInfoCardVisible(false);
     //for elawindow addPageNode need page has content
-    addPageNode(u8"按键方案",new ScreenSelectionModeSetPage(this),ElaIconType::PresentationScreen);
+    addPageNode(u8"常规设置",new ScreenSelectionModeSetPage(this),ElaIconType::PresentationScreen);
     addPageNode(u8"热键设置", new ShortCutSettingPage(this),ElaIconType::Keyboard);
     addPageNode(u8"日志信息",new LogInfoPage(this),ElaIconType::MemoPad);
 

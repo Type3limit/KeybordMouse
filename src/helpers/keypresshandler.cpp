@@ -160,13 +160,20 @@ void KeyEventHandler::Drag(QKeyEvent* event)
         m_window->update();
         auto curScreenPix = m_window->currentScreen()->devicePixelRatio();
         MouseEventHelper::drag(MouseEventHelper::Button::Left,
-                               m_window->m_dragStartPos.x()<0 ? (m_window->m_dragStartPos.x()/curScreenPix):(m_window->m_dragStartPos.x()*curScreenPix),
-                               m_window->m_dragStartPos.y()<0? ( m_window->m_dragStartPos.y()/curScreenPix):(m_window->m_dragStartPos.y()*curScreenPix),
+                               m_window->m_dragStartPos.x()<0 ? (m_window->m_dragStartPos.x()*curScreenPix):(m_window->m_dragStartPos.x()/curScreenPix),
+                               m_window->m_dragStartPos.y()<0? ( m_window->m_dragStartPos.y()*curScreenPix):(m_window->m_dragStartPos.y()/curScreenPix),
                                m_window->m_dragEndPos.x() < 0 ? (m_window->m_dragEndPos.x() / curScreenPix) : (m_window->m_dragEndPos.x()*curScreenPix),
                                m_window->m_dragEndPos.y()<0?(m_window->m_dragEndPos.y()/curScreenPix):(m_window->m_dragEndPos.y()*curScreenPix));
         m_window->m_dragStartPos = QPoint(INT_MIN,INT_MIN);
         m_window->m_dragEndPos = QPoint(INT_MIN,INT_MIN);
-        //m_window->close();
+        if (Config::instance()->getCloseAfterDrag())
+        {
+            m_window->close();
+        }
+        else
+        {
+            emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+        }
 
     }
     else
@@ -235,7 +242,14 @@ void KeyEventHandler::handleLeftClick()
 
     // 重置点击次数
     m_leftClickCount = 0;
-    m_window->close();
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::handleRightClick()
@@ -251,32 +265,73 @@ void KeyEventHandler::handleRightClick()
         MouseEventHelper::click(MouseEventHelper::Button::Right, MouseEventHelper::ClickType::Triple);
     }
 
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
     // 重置点击次数
     m_rightClickCount = 0;
+
 }
 
 void KeyEventHandler::QuickLeftDoubleClick(QKeyEvent* event)
 {
     qDebug()<<"send quick left double click";
     MouseEventHelper::click(MouseEventHelper::Button::Left, MouseEventHelper::ClickType::Double);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::QuickLeftTripleClick(QKeyEvent* event)
 {
     qDebug()<<"send quick left triple click";
     MouseEventHelper::click(MouseEventHelper::Button::Left, MouseEventHelper::ClickType::Triple);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::QuickRightDoubleClick(QKeyEvent* event)
 {
     qDebug()<<"send quick right double click";
     MouseEventHelper::click(MouseEventHelper::Button::Right, MouseEventHelper::ClickType::Double);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::QuickRightTripleClick(QKeyEvent* event)
 {
     qDebug()<<"send quick right double click";
     MouseEventHelper::click(MouseEventHelper::Button::Right, MouseEventHelper::ClickType::Triple);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::MoveColumnLeft(QKeyEvent* event)
@@ -307,18 +362,42 @@ void KeyEventHandler::MiddleButtonClick(QKeyEvent* event)
 {
     qDebug()<<"send middle button click";
     MouseEventHelper::click(MouseEventHelper::Button::Middle, MouseEventHelper::ClickType::Single);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::ForwardButtonClick(QKeyEvent* event)
 {
     qDebug()<<"send forward button click";
     MouseEventHelper::click(MouseEventHelper::Button::Forward, MouseEventHelper::ClickType::Single);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::BackwardButtonClick(QKeyEvent* event)
 {
     qDebug()<<"send backward button click";
     MouseEventHelper::click(MouseEventHelper::Button::Back, MouseEventHelper::ClickType::Single);
+    if (Config::instance()->getCloseAfterClick())
+    {
+        m_window->close();
+    }
+    else
+    {
+        emit GlobalSignal::instance()->requestOpenFullScreenWindow();//reinvoke to get focus
+    }
 }
 
 void KeyEventHandler::moveXPosition(int direction) const

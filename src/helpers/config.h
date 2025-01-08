@@ -111,7 +111,16 @@ public:
     ScreenOptionMode getOptionMode() const;
 
     void setSubCellOptionMode(ScreenOptionMode mode);
+
     ScreenOptionMode getSubCellOptionMode() const;
+
+    void setCloseAfterClick(bool value);
+
+    bool getCloseAfterClick() const;
+
+    void setCloseAfterDrag(bool value);
+
+    bool getCloseAfterDrag() const;
 
     void writeJson();
 
@@ -126,7 +135,7 @@ private:
 
         {ShowFullScreenHotKey, {QKeySequence(Qt::AltModifier | Qt::Key_S)}},
 
-        {CloseWindowHotKey, {QKeySequence(Qt::Key_Escape)}},
+        {CloseWindowHotKey, {QKeySequence(Qt::AltModifier|Qt::Key_Escape)}},
 
         {CancelSelectionHotKey, {QKeySequence(Qt::Key_Backspace)}},
 
@@ -266,6 +275,10 @@ private:
     ScreenOptionMode optionMode = ScreenOptionMode::QWER;
 
     ScreenOptionMode subCellMode = ScreenOptionMode::QWER;
+
+    bool closeAfterClick = true;
+
+    bool closeAfterDrag = true;
 
     Config();
 

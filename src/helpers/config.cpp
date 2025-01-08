@@ -67,6 +67,26 @@ ScreenOptionMode Config::getSubCellOptionMode() const
     return subCellMode;
 }
 
+void Config::setCloseAfterClick(bool value)
+{
+    closeAfterClick = value;
+}
+
+bool Config::getCloseAfterClick() const
+{
+    return closeAfterClick;
+}
+
+void Config::setCloseAfterDrag(bool value)
+{
+    closeAfterDrag = value;
+}
+
+bool Config::getCloseAfterDrag() const
+{
+    return closeAfterDrag;
+}
+
 void Config::writeJson()
 {
     QJsonObject obj;
@@ -82,6 +102,8 @@ void Config::writeJson()
     }
     obj[STR(SubCellMode)] = subCellMode;
     obj[STR(OptionMode)] = optionMode;
+    obj[STR(CloseAfterClick)] = closeAfterClick;
+    obj[STR(CloseAfterDrag)] = closeAfterDrag;
     StrEx::writeAllText(ConfigPath, QJsonDocument(obj).toJson());
 }
 
@@ -96,6 +118,10 @@ void Config::writeJson()
     subCellMode = static_cast<ScreenOptionMode>(obj[STR(SubCellMode)].toInt());
 
     optionMode = static_cast<ScreenOptionMode>(obj[STR(OptionMode)].toInt());
+
+    closeAfterClick = obj[STR(CloseAfterClick)].toBool();
+
+    closeAfterDrag = obj[STR(CloseAfterDrag)].toBool();
 
     for (int i=0;i<n_ConfigType;i++)
     {
@@ -112,5 +138,9 @@ void Config::writeJson()
  Config& Config::operator=(Config& other)
 {
     hotkeySequence=QHash(other.hotkeySequence);
+    subCellMode = other.subCellMode;
+    optionMode = other.optionMode;
+    closeAfterClick = other.closeAfterClick;
+    closeAfterDrag = other.closeAfterDrag;
     return *this;
 }
