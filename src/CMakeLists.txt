@@ -39,6 +39,12 @@ file(GLOB_RECURSE RESOURCES "*.cpp" "*.h" "*.hpp" "*.ui" "*.qrc")
 
 include_directories(
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/dialogs
+        ${CMAKE_CURRENT_LIST_DIR}/dialogs/models
+        ${CMAKE_CURRENT_LIST_DIR}/dialogs/pages
+        ${CMAKE_CURRENT_LIST_DIR}/dialogs/widgets
+        ${CMAKE_CURRENT_LIST_DIR}/helpers
+        ${CMAKE_CURRENT_LIST_DIR}/trayicons
         ${CMAKE_CURRENT_LIST_DIR}/../thirdPart/QHotkey/QHotkey
         ${CMAKE_CURRENT_LIST_DIR}/../thirdPart/ElaWidgetTools/src/include
 )
@@ -85,7 +91,6 @@ set_target_properties(
         WIN32_EXECUTABLE TRUE
         MACOSX_BUNDLE TRUE
 )
-
 add_custom_command(
         TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:ElaWidgetTools> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}

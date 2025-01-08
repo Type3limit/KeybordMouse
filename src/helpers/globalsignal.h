@@ -15,7 +15,9 @@ class GlobalSignal:public QObject
 public:
     signals:
     void requestOpenFullScreenWindow();
+    void requestCloseFullScreenWindow();
     void requestOpenSettingWindow();
+    void requestCloseSettingWindow();
     void requestQuit();
     void requestShowMessage(const QString& message);
     void requestModifyConfig(ConfigType type,const QVariant& data);

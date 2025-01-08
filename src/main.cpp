@@ -13,8 +13,9 @@
 #include <QTimer>
 
 #include "ElaApplication.h"
+#include "ElaLog.h"
+#include "keypresshandler.h"
 #include "helpers/config.h"
-#include "helpers/debug.h"
 #include "helpers/globalsignal.h"
 #include "helpers/messages.h"
 #include "trayicons/systemtrayicon.h"
@@ -83,8 +84,11 @@ int main(int argc, char* argv[])
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Round);
 #endif
     QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(),
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    if (!qtTranslator.load("qt_" + QLocale::system().name(),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
+        qDebug()<< "app: failed to load qt translation";
+    }
 
     QApplication app(argc, argv);
 
@@ -93,8 +97,6 @@ int main(int argc, char* argv[])
     app.setApplicationName("KeybordMouse");
 
     app.setApplicationDisplayName(u8"屏幕键盘");
-
-    eApp->init();
 
     QTcpSocket socket;
     socket.connectToHost("localhost",TCP_DEFAULT_PORT);
@@ -120,9 +122,18 @@ int main(int argc, char* argv[])
     }
 
 
-
-    initializeLogger();
-
+    //initializeLogger();
+    eApp->init();
+    eApp->setIsEnableMica(true);
+    ElaLog::getInstance()->initMessageLog(true);
+    ElaLog::getInstance()->setIsLogFileNameWithTime(true);
+    ElaLog::getInstance()->setLogSavePath(QApplication::applicationDirPath() + "/log/");
+    auto dir = QDir(QApplication::applicationDirPath() + "/log/");
+    if (!dir.exists())
+    {
+        dir.mkpath(QApplication::applicationDirPath() + "/log/");
+    }
+    qDebug()<<"Log file pathes" <<QApplication::applicationDirPath() + "/log/";
 #ifdef _WIN32
     SetUnhandledExceptionFilter(exceptionCallback);
 #endif
@@ -138,7 +149,6 @@ int main(int argc, char* argv[])
         }
         clientSocket->deleteLater();
     });
-
     SystemTrayIcon trayIcon;
     QApplication::setQuitOnLastWindowClosed(false);
     QTimer::singleShot(500, &trayIcon, [&]()
@@ -146,8 +156,10 @@ int main(int argc, char* argv[])
         emit GlobalSignal::instance()->requestShowMessage(u8"屏幕键盘已启动");
         qApp->processEvents();
     });
+
     int code =  QApplication::exec();
     localServer.close();
+    KeyEventHandler::instance()->clearHotKeys();
 #ifdef WIN32
     _CrtDumpMemoryLeaks();
 #endif

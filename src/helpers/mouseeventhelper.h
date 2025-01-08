@@ -149,6 +149,34 @@ public:
         return true;
 #endif
     }
+
+    // 执行拖动操作
+    static bool drag(Button button, int startX, int startY, int endX, int endY, int steps = 10) {
+        if (!moveTo(startX, startY)) {
+            return false;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        if (!buttonDown(button)) {
+            return false;
+        }
+
+        // 平滑移动
+        for (int i = 1; i <= steps; i++) {
+            int x = startX + ((endX - startX) * i / steps);
+            int y = startY + ((endY - startY) * i / steps);
+
+            if (!moveTo(x, y)) {
+                buttonUp(button);
+                return false;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        return buttonUp(button);
+    }
 };
 
 

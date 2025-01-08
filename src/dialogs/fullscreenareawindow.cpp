@@ -10,8 +10,11 @@
 #include <QScreen>
 #include <QApplication>
 #include <QDebug>
+#include <QPainterPath>
+
 #include "ElaTheme.h"
 #include "helpers/clickthroughwindow.h"
+#include "helpers/keypresshandler.h"
 
 #include "helpers/mouseeventhelper.h"
 
@@ -22,13 +25,9 @@ FullScreenAreaWindow::FullScreenAreaWindow(QWidget* parent)
 
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(false);
+    m_keyPressHandler = KeyEventHandler::instance();
+    m_keyPressHandler->setWindow(this);
     ClickThroughWindow::enableClickThrough(this);
-}
-
-void FullScreenAreaWindow::setOptionMode(ScreenOptionMode fullScreenMode, ScreenOptionMode subCellMode)
-{
-    m_optionMode = fullScreenMode;
-    m_subCellMode = subCellMode;
 }
 
 QSize FullScreenAreaWindow::getCellColumnAndRowCount(int n, QRect area)
@@ -53,9 +52,9 @@ void FullScreenAreaWindow::setCurrentScreen(QScreen* curScr)
     m_currentScreen = curScr;
 }
 
-void FullScreenAreaWindow::setConfig(Config config)
+void FullScreenAreaWindow::setConfig()
 {
-    m_config = config;
+    m_keyPressHandler->registHotKeys();
 }
 
 QScreen* FullScreenAreaWindow::currentScreen()
@@ -72,8 +71,8 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
     painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     auto screenGeometry = currentScreen()->geometry();
-    auto screenStrInUse = ScreenOptionModeStr[m_optionMode];
-    auto cellStrInUse = ScreenOptionModeStr[m_subCellMode];
+    auto screenStrInUse = ScreenOptionModeStr[Config::instance()->getOptionMode()];
+    auto cellStrInUse = ScreenOptionModeStr[Config::instance()->getSubCellOptionMode()];
 
     int drawCount = screenStrInUse.count();
     int xDistance = screenGeometry.width() / drawCount;
@@ -149,276 +148,33 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
             }
         }
     }
+
+    //绘制拖拽位置
+    if (m_dragStartPos.x() >= 0 && m_dragStartPos.y() >= 0 )
+    {
+        painter.setPen(QPen(QColor(124,252,0,128), 2));
+        if (m_dragEndPos.x() >= 0 && m_dragEndPos.y() >= 0)
+        {
+            painter.drawRect(QRect{m_dragStartPos,m_dragEndPos});
+        }
+        else
+        {
+            QPainterPath path;
+            path.addEllipse(m_dragStartPos,5,5);
+            painter.fillPath(path,QColor(124,252,0,128));
+        }
+    }
 }
 
 
 
 void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
 {
-    if (event->key() == Qt::Key_Escape)
-    {
-        processBackspace();
-        event->ignore();
-    }
-    else if (event->key()== Qt::Key_Enter)
-    {
-        event->ignore();
-    }
-    else if (event->key()==Qt::Key_Backspace)
-    {
-        processBackspace();
-        event->ignore();
-    }
-    else if (event->key()==Qt::Key_Tab&&event->modifiers()==Qt::AltModifier)
-    {
-        auto screens = QGuiApplication::screens();
-        auto curIndex = screens.indexOf(currentScreen());
-        curIndex +=1;
-        if (curIndex>=screens.count())
-        {
-            curIndex = 0;
-        }
-        setCurrentScreen(screens[curIndex]);
-        setGeometry(currentScreen()->geometry());
-
-        event->accept();
-    }
-    else if (event->key()==Qt::Key_Space)
-    {
-        close();
-        if (event->modifiers()&Qt::ShiftModifier)
-        {
-            
-            MouseEventHelper::click(MouseEventHelper::Button::Right);
-        }
-        else
-        {
-            MouseEventHelper::click(MouseEventHelper::Button::Left);
-        }
-        event->ignore();
-    }
-    else if (event->key()==Qt::Key_Left)
-    {
-        if (event->modifiers()&Qt::ShiftModifier)
-        {
-            auto screens = QGuiApplication::screens();
-            auto curIndex = screens.indexOf(currentScreen());
-            curIndex -=1;
-            if (curIndex<0)
-            {
-                curIndex = screens.count()-1;
-            }
-            setCurrentScreen( screens[curIndex]);
-            setGeometry(currentScreen()->geometry());
-        }
-        else
-        {
-            if (m_thirdPos<0)
-            {
-                m_firstPos -= 1;
-                if (m_firstPos<0)
-                {
-                    m_firstPos = ScreenOptionModeStr[m_optionMode].count()-1;
-                }
-
-            }
-            else
-            {
-                m_thirdPos -= 1;
-                if (m_thirdPos>=ScreenOptionModeStr[m_subCellMode].count())
-                {
-                    m_thirdPos = ScreenOptionModeStr[m_subCellMode].count()-1;
-                }
-            }
-        }
-        event->accept();
-    }
-    else if (event->key()==Qt::Key_Right)
-    {
-        if (event->modifiers()&Qt::ShiftModifier)
-        {
-            auto screens = QGuiApplication::screens();
-            auto curIndex = screens.indexOf(currentScreen());
-            curIndex +=1;
-            if (curIndex>=screens.count())
-            {
-                curIndex = 0;
-            }
-            setCurrentScreen(screens[curIndex]);
-            setGeometry(currentScreen()->geometry());
-        }
-        else
-        {
-            if (m_thirdPos<0)
-            {
-                m_firstPos += 1;
-                if (m_firstPos>=ScreenOptionModeStr[m_optionMode].count())
-                {
-                    m_firstPos = 0;
-                }
-
-            }
-            else
-            {
-                m_thirdPos += 1;
-                if (m_thirdPos>=ScreenOptionModeStr[m_subCellMode].count())
-                {
-                    m_thirdPos = 0;
-                }
-            }
-        }
-
-        event->accept();
-    }
-    else if (event->key()==Qt::Key_Up)
-    {
-        if (m_thirdPos<0)
-        {
-            m_secondPos -= 1;
-            if (m_secondPos>=ScreenOptionModeStr[m_optionMode].count())
-            {
-                m_secondPos = 0;
-            }
-
-        }
-        else
-        {
-            m_thirdPos -= 1;
-            if (m_thirdPos>=ScreenOptionModeStr[m_subCellMode].count())
-            {
-                m_thirdPos = 0;
-            }
-        }
-        event->accept();
-    }
-    else if (event->key()==Qt::Key_Down)
-    {
-        event->accept();
-    }
-    else
-    {
-        auto curKeysInUse = ScrrenOptionModeKey[m_optionMode];
-        auto curKeyInCellUse = ScrrenOptionModeKey[m_subCellMode];
-        auto curKey = static_cast<Qt::Key>(event->key());
-        if (curKeysInUse.contains(static_cast<Qt::Key>(event->key())))
-        {
-            if (m_firstPos<0)
-            {
-                m_firstPos = curKeysInUse.indexOf(curKey);
-            }
-            else if (m_secondPos<0)
-            {
-                m_secondPos = curKeysInUse.indexOf(curKey);
-                onKeyMoveMouse();
-            }
-            else if (m_thirdPos<0)
-            {
-                m_thirdPos = curKeyInCellUse.indexOf(curKey);
-                onKeyMoveMouse();
-                resetStatus();
-            }
-        }
-        QWidget::keyPressEvent(event);
-    }
+    m_keyPressHandler->handleKeyPress(event);
     update();
 }
-
 
 void FullScreenAreaWindow::keyReleaseEvent(QKeyEvent* event)
 {
     QWidget::keyReleaseEvent(event);
-}
-
-void FullScreenAreaWindow::onKeyMoveMouse()
-{
-    auto curKeysInUse = ScrrenOptionModeKey[m_optionMode];
-    auto curKeyInCellUse = ScrrenOptionModeKey[m_subCellMode];
-
-    if (m_firstPos>=0&&m_secondPos>=0)
-    {
-        auto screenGeometry = currentScreen()->geometry();
-        auto xDistance = screenGeometry.width()/curKeysInUse.count();
-        auto yDistance = screenGeometry.height()/curKeysInUse.count();
-        auto curRect = QRect(m_firstPos*xDistance,m_secondPos*yDistance,xDistance,yDistance);
-
-        if (m_thirdPos<0)
-        {
-            auto pos = curRect.center();
-            QCursor::setPos(pos);
-        }
-        else
-        {
-            auto size = getCellColumnAndRowCount(ScreenOptionModeStr[m_subCellMode].count()-1,curRect);
-            auto xSize = curRect.width()/(double)(size.width());
-            auto ySize = curRect.height()/(double)(size.height());
-
-            int colum = m_thirdPos / size.width();
-            int row = m_thirdPos - colum*size.width();
-            auto xPos = curRect.x()+row*xSize + xSize/2.0;
-            auto yPos = curRect.y()+colum*ySize + ySize/2.0;
-            QCursor::setPos(xPos,yPos);
-        }
-
-    }
-
-}
-
-void FullScreenAreaWindow::resizeEvent(QResizeEvent* event)
-{
-    QWidget::resizeEvent(event);
-}
-
-void FullScreenAreaWindow::processBackspace()
-{
-    if (m_thirdPos>=0)
-    {
-        m_thirdPos = -1;
-    }
-    else if (m_secondPos>=0)
-    {
-        m_secondPos = -1;
-    }
-    else if (m_firstPos>=0)
-    {
-        m_firstPos = -1;
-    }
-    else
-    {
-        close();
-    }
-}
-
-void FullScreenAreaWindow::showEvent(QShowEvent* event)
-{
-    qDebug()<<"FullScreenAreaWindow  show";
-    QWidget::showEvent(event);
-}
-
-void FullScreenAreaWindow::mousePressEvent(QMouseEvent* event)
-{
-    qDebug()<<"mouse pressed";
-    QWidget::mousePressEvent(event);
-}
-
-void FullScreenAreaWindow::mouseReleaseEvent(QMouseEvent* event)
-{
-    qDebug()<<"mouse release";
-    QWidget::mouseReleaseEvent(event);
-}
-
-void FullScreenAreaWindow::mouseMoveEvent(QMouseEvent* event)
-{
-    qDebug()<<"mouse move";
-    QWidget::mouseMoveEvent(event);
-}
-
-bool FullScreenAreaWindow::event(QEvent* event)
-{
-    if (event->type() == QEvent::MouseButtonPress ||
-       event->type() == QEvent::MouseButtonRelease ||
-       event->type() == QEvent::MouseMove) {
-        clearFocus();
-        return false; // 让事件继续传递
-    }
-    return QWidget::event(event);
 }

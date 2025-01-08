@@ -21,7 +21,7 @@ class SourcesExtension
 {
 public:
     ///get the first element that matched with condition,need pass the total count of array,if there has no matched one,return defaultValue
-    static inline finderType firstOf(const finderType *sources,
+    static  finderType firstOf(const finderType *sources,
                                      const int count,
                                      const std::function<bool( finderType)> &MatchFunction,
                                      const finderType defaultValue)
@@ -36,7 +36,7 @@ public:
         return result;
     }
     ///get the first element of QList that matched with condition,if there has no matched one,return defaultValue
-    static inline finderType firstOf(const QList<finderType> &sources,
+    static  finderType firstOf(const QList<finderType> &sources,
                                      const std::function<bool( finderType)> &MatchFunction,
                                      const finderType defaultValue)
     {
@@ -52,7 +52,7 @@ public:
         return result;
     }
     ///get the last element that matched with condition,need pass the total count of array,if there has no marched one,return defaultValue
-    static inline finderType lastOf(const finderType *sources,
+    static  finderType lastOf(const finderType *sources,
                                     const int count,
                                     const std::function<bool(finderType)> &MatchFunction,
                                     const finderType defaultValue)
@@ -66,7 +66,7 @@ public:
         return result;
     }
     ///get the last element of QList that matched with condition,if there has no marched one,return defaultValue
-    static inline finderType lastOf(const QList<finderType> &sources,
+    static  finderType lastOf(const QList<finderType> &sources,
                                     const std::function<bool(finderType)> &MatchFunction,
                                     const finderType defaultValue)
     {
@@ -81,7 +81,7 @@ public:
         return result;
     }
     ///to confirm if a QList contains an object that matched the condition
-    static inline bool contains(const QList<finderType>&sources,
+    static  bool contains(const QList<finderType>&sources,
                                 const std::function<bool(finderType)>&MatchFunction)
     {
         for(const auto& itr:sources)
@@ -95,7 +95,7 @@ public:
     }
 
     template<typename keyType>
-    static inline keyType firstOfKey(const std::unordered_map<keyType,finderType> &sources,
+    static  keyType firstOfKey(const std::unordered_map<keyType,finderType> &sources,
                                     const std::function<bool(keyType)> &MatchFunction,
                                     const keyType defaultValue)
     {
@@ -112,7 +112,7 @@ public:
         return result;
     }
     template<typename keyType>
-    static inline keyType lastOfKey(const std::unordered_map<keyType,finderType> &sources,
+    static  keyType lastOfKey(const std::unordered_map<keyType,finderType> &sources,
                                     const std::function<bool(keyType)> &MatchFunction,
                                     const keyType defaultValue)
     {
@@ -128,7 +128,7 @@ public:
         return result;
     }
     template<typename keyType,typename compare>
-    static inline finderType getMaxOfValue(const std::unordered_map<keyType,finderType> &sources,
+    static  finderType getMaxOfValue(const std::unordered_map<keyType,finderType> &sources,
                                            const std::function<compare(finderType)> &MatchFunction,
                                            const compare defaultValue,const finderType defaultObj)
     {
@@ -147,7 +147,7 @@ public:
     }
 
     template<typename keyType>
-    static inline QList<finderType> where(const std::unordered_map<keyType,finderType>&sources,
+    static  QList<finderType> where(const std::unordered_map<keyType,finderType>&sources,
                                        const std::function<bool(finderType)> &MatchFunction)
     {
         QList<finderType> res;
@@ -162,7 +162,7 @@ public:
     }
 
     template<typename keyType,typename compare>
-    static inline finderType getMinOfValue(const std::unordered_map<keyType,finderType> &sources,
+    static  finderType getMinOfValue(const std::unordered_map<keyType,finderType> &sources,
                                            const std::function<compare(finderType)> &MatchFunction,
                                            const compare defaultValue,const finderType defaultObj)
     {
@@ -180,7 +180,7 @@ public:
         return res;
     }
     ///get elements which is matched the condition,need pass the total count of array,if there has no matched,return an empty sources
-    static inline QList<finderType>
+    static  QList<finderType>
     where(const finderType *sources, const int count, const std::function<bool(finderType)> &MatchFunction)
     {
         QList<finderType> findResult;
@@ -193,7 +193,7 @@ public:
     }
 
     ///get elements of QList which is marched the condition,if there has no marched,return an empty sources
-    static inline QList<finderType>
+    static  QList<finderType>
     where(const QList<finderType> &sources, const std::function<bool(finderType)> &MatchFunction)
     {
         QList<finderType> findResult;
@@ -207,7 +207,7 @@ public:
         return findResult;
     }
     ///traverse element in arrays and execute the same function
-    static inline void eachBy(const QList<finderType> &sources, const std::function<void(finderType)> &executeFunc)
+    static  void eachBy(const QList<finderType> &sources, const std::function<void(finderType)> &executeFunc)
     {
         auto begin = sources.begin();
         while (begin != sources.end()) {
@@ -216,7 +216,7 @@ public:
         }
     }
     ///traverse element in arrays and execute the same function
-    static inline void
+    static  void
     eachBy(const finderType *sources, int totalCount, const std::function<void(finderType)> &executeFunc)
     {
         for (int i = 0; i < totalCount; i++) {
@@ -224,7 +224,7 @@ public:
         }
     }
     ///in arrays,skip the {skipCount} number from head,return others
-    static inline QList<finderType> skip(const finderType *sources, int totalCount, int skipCount)
+    static  QList<finderType> skip(const finderType *sources, int totalCount, int skipCount)
     {
         QList<finderType> result;
         finderType *index = sources;
@@ -239,7 +239,7 @@ public:
         return result;
     }
     ///in QList,skip the {skipCount} number from head,return others
-    static inline QList<finderType> skip(const QList<finderType> &sources, int totalCount, int skipCount)
+    static  QList<finderType> skip(const QList<finderType> &sources, int totalCount, int skipCount)
     {
         QList<finderType> result = QList<finderType>();
         auto index = sources.begin();
@@ -254,7 +254,7 @@ public:
         return result;
     }
     ///in arrays,take the {TakeCount} number from head,if the value was -1,take all of them
-    static inline QList<finderType> take(const finderType *sources, int totalCount, int TakeCount = -1)
+    static  QList<finderType> take(const finderType *sources, int totalCount, int TakeCount = -1)
     {
         QList<finderType> result;
         int limitedCount = TakeCount == -1 ? totalCount : TakeCount;
@@ -264,7 +264,7 @@ public:
         return result;
     }
     ///in QList,take the {TakeCount} number from head,if the value was -1,take all of them
-    static inline QList<finderType> take(const QList<finderType> &sources, int TakeCount = -1)
+    static  QList<finderType> take(const QList<finderType> &sources, int TakeCount = -1)
     {
         QList<finderType> result;
         auto index = sources.begin();
@@ -280,7 +280,7 @@ public:
     }
     ///in QList,take a Res type result for each finderType
     template<typename Res>
-    static inline QList<Res> select(const QList<finderType> &sources, std::function<Res(const finderType&)> selectFunc)
+    static  QList<Res> select(const QList<finderType> &sources, std::function<Res(const finderType&)> selectFunc)
     {
         QList<Res> res;
         for (auto i: sources) {
@@ -290,7 +290,7 @@ public:
     }
     ///in QList,take a Res type result for each finderType,with result check
     template<typename Res>
-    static inline QList<Res> select(const QList<finderType> &sources, std::function<Res(const finderType&)> selectFunc,
+    static  QList<Res> select(const QList<finderType> &sources, std::function<Res(const finderType&)> selectFunc,
                                     std::function<bool(const Res&)> checkSuccess)
     {
         QList<Res> res;
@@ -305,7 +305,7 @@ public:
     }
     ///in arrays,task a Res type result for each finderType
     template<typename Res>
-    static inline QList<Res>
+    static  QList<Res>
     select(const finderType *sources, int sourcesCount, std::function<Res(finderType)> selectFunc)
     {
         QList<Res> res;
@@ -316,7 +316,7 @@ public:
     }
 
     ///in QList, depart origin source to two parts based on matchFunc
-    static inline void classification(const QList<finderType> &source, std::function<bool(finderType)> matchFunc,
+    static  void classification(const QList<finderType> &source, std::function<bool(finderType)> matchFunc,
                                       QList<finderType> &ifMatchResult, QList<finderType> &notMatchResult)
     {
         std::for_each(source.begin(), source.end(), [&](const finderType &item) -> void
@@ -328,7 +328,7 @@ public:
         });
     }
     //in QList ,select items by different match function,one item may included by multi collections.
-    static inline QList<QList<finderType>> groupSelect(const QList<finderType>&sources,QList<std::function<bool(finderType)>>matchFunctions)
+    static  QList<QList<finderType>> groupSelect(const QList<finderType>&sources,QList<std::function<bool(finderType)>>matchFunctions)
     {
         QList<QList<finderType>> result;
         for(int i=0;i<matchFunctions.count();i++)
@@ -350,7 +350,7 @@ public:
 
     //in QList,select items by function which can get a field by pass item
     template<typename para>
-    static inline  QMap<para,QList<finderType>> groupBy(const QList<finderType>&sources,std::function<para(finderType)>selectFunction)
+    static   QMap<para,QList<finderType>> groupBy(const QList<finderType>&sources,std::function<para(finderType)>selectFunction)
     {
         QMap<para,QList<finderType>> source;
         for(const auto& itr:sources)
@@ -367,7 +367,7 @@ public:
 
     //in QMap ,find which key is contained the specific value.
     template<typename param>
-    static inline param whichHasValue(const QMap<param,QList<finderType>>& map,finderType valueToFind,
+    static  param whichHasValue(const QMap<param,QList<finderType>>& map,finderType valueToFind,
                                       std::function<bool(const finderType& l,const finderType& r)>matchFunc)
     {
         bool hasFind = false;
@@ -391,7 +391,7 @@ public:
     }
     //statistic with QList,get the same
     template<typename prop>
-    static inline QHash<prop,int> countSummary(const QList<finderType>& source,std::function<prop(finderType)>getProp)
+    static  QHash<prop,int> countSummary(const QList<finderType>& source,std::function<prop(finderType)>getProp)
     {
         QHash<prop,int> result;
         if(source.empty())
@@ -408,7 +408,7 @@ public:
 
     //change a QList to a QHash
     template<typename keyType>
-    static inline QHash<keyType,finderType> toHashMap(const QList<finderType>& source,std::function<keyType(finderType)>getKey)
+    static  QHash<keyType,finderType> toHashMap(const QList<finderType>& source,std::function<keyType(finderType)>getKey)
     {
         QHash<keyType,finderType> res;
         if(source.isEmpty())
@@ -430,19 +430,19 @@ class QStringExtension
 {
 public:
     ///check if file exist
-    static inline bool isFileExist(const QString &str)
+    static  bool isFileExist(const QString &str)
     {
         if (isNullOrEmpty(str))
             return false;
         return QFile::exists(str);
     }
     ///check if string is empty or nullptr
-    static inline bool isNullOrEmpty(const QString &str)
+    static  bool isNullOrEmpty(const QString &str)
     {
         return str == nullptr || str.isNull() || str.isEmpty();
     }
     /// read text from file
-    static inline QString readAllText(const QString &filePath, const QStringConverter::Encoding enc=QStringConverter::Encoding::Utf8)
+    static  QString readAllText(const QString &filePath, const QStringConverter::Encoding enc=QStringConverter::Encoding::Utf8)
     {
 
         QString result;
@@ -460,7 +460,7 @@ public:
         return result;
     }
     ///write text to file
-    static inline void writeAllText(const QString &filePath, const QString &content,
+    static  void writeAllText(const QString &filePath, const QString &content,
         const QStringConverter::Encoding enc=QStringConverter::Encoding::Utf8)
     {
 
@@ -489,7 +489,7 @@ public:
         AbsolutePath,
     };
     ///In the specified path,get infos by {mode}
-    static inline QString getFileInfo(const QString &filePath, QStringExtensionPathOptionMode mode)
+    static  QString getFileInfo(const QString &filePath, QStringExtensionPathOptionMode mode)
     {
         QString result;
         if (isNullOrEmpty(filePath) || !isFileExist(filePath))

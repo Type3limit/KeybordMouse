@@ -55,11 +55,10 @@ SystemTrayIcon::SystemTrayIcon(QWidget* parent)
 
     setMouseTracking(true);
 
-
-    initConfig();
     initWindow();
     initSignals();
     initMenus();
+    initConfig();
 
     m_systemTrayIcon->show();
 }
@@ -97,12 +96,7 @@ void SystemTrayIcon::hideIcon()
 
 void SystemTrayIcon::initConfig()
 {
-    m_config.showFullScreenHotKey;
-    QHotkey *hotkey = new QHotkey(QKeySequence(m_config.showFullScreenHotKey), true, this);
-    connect(hotkey,&QHotkey::activated,this,[&]()
-    {
-        emit GlobalSignal::instance()->requestOpenFullScreenWindow();
-    });
+   m_fullScreenAreaWindow->setConfig();
 }
 
 void SystemTrayIcon::initWindow()
@@ -167,11 +161,18 @@ void SystemTrayIcon::initSignals()
            m_settingWindow->show();
        }
     });
+
+    connect(GlobalSignal::instance(),&GlobalSignal::requestCloseSettingWindow,this,[&]()
+   {
+      if (m_settingWindow)
+      {
+          m_settingWindow->close();
+      }
+   });
     connect(GlobalSignal::instance(),&GlobalSignal::requestOpenFullScreenWindow,this,[&]()
     {
         if (m_fullScreenAreaWindow)
         {
-            qDebug()<<"try invoke full screen window";
             QScreen* primary = QGuiApplication::primaryScreen();
             auto screenInUse = from(QGuiApplication::screens()).firstOf([&](QScreen* scr)
             {
@@ -180,16 +181,23 @@ void SystemTrayIcon::initSignals()
             qDebug()<<"full screen window start in screen:"<<screenInUse->name();
             m_fullScreenAreaWindow->setGeometry(screenInUse->geometry());
             qDebug()<<"full screen window with geometry:" << screenInUse->geometry();
-            // m_fullScreenAreaWindow->raise();
-            // m_fullScreenAreaWindow->activateWindow();
             m_fullScreenAreaWindow->hide();
             m_fullScreenAreaWindow->showNormal();
-            m_fullScreenAreaWindow->setFocus(Qt::OtherFocusReason);
-            qDebug()<<"invoke full screen window finished";
+            m_fullScreenAreaWindow->raise();
+            m_fullScreenAreaWindow->setFocus(Qt::TabFocusReason);
+            m_fullScreenAreaWindow->activateWindow();
         }
         else
         {
             qDebug()<<"full screen window not exist";
+        }
+    },Qt::QueuedConnection);
+
+    connect(GlobalSignal::instance(),&GlobalSignal::requestCloseFullScreenWindow,this,[&]()
+    {
+        if (m_fullScreenAreaWindow)
+        {
+            m_fullScreenAreaWindow->close();
         }
     },Qt::QueuedConnection);
 }

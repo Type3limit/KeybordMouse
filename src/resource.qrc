@@ -41,5 +41,8 @@
         <file>images/minimal.svg</file>
         <file>images/continue.svg</file>
         <file>images/toolbar_menu_checked_icon.svg</file>
+        <file>images/add.svg</file>
+        <file>images/remove.svg</file>
+        <file>images/reset.svg</file>
     </qresource>
 </RCC>

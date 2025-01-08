@@ -7,11 +7,6 @@
 
 #include "ElaWindow.h"
 
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class SettingWindow; }
-QT_END_NAMESPACE
-
 class SettingWindow : public ElaWindow {
 Q_OBJECT
 
@@ -19,8 +14,7 @@ public:
     explicit SettingWindow(QWidget *parent = nullptr);
     ~SettingWindow() override;
 
-private:
-    Ui::SettingWindow *ui;
+    void initUI();
 };
 
 

@@ -45,7 +45,6 @@ private:
     volatile bool m_iconFlag{ false};
     QIcon m_normalIcon;
     QIcon m_blankIcon;
-    Config m_config;
     bool m_isRecordingStarted = false;
     bool m_isPaused= false;
 
