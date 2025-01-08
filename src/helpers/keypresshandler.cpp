@@ -160,13 +160,13 @@ void KeyEventHandler::Drag(QKeyEvent* event)
         m_window->update();
         auto curScreenPix = m_window->currentScreen()->devicePixelRatio();
         MouseEventHelper::drag(MouseEventHelper::Button::Left,
-                               m_window->m_dragStartPos.x(),
-                               m_window->m_dragStartPos.y()*curScreenPix,
-                               m_window->m_dragEndPos.x() / curScreenPix,
-                               m_window->m_dragEndPos.y()*curScreenPix);
+                               m_window->m_dragStartPos.x()<0 ? (m_window->m_dragStartPos.x()/curScreenPix):(m_window->m_dragStartPos.x()*curScreenPix),
+                               m_window->m_dragStartPos.y()<0? ( m_window->m_dragStartPos.y()/curScreenPix):(m_window->m_dragStartPos.y()*curScreenPix),
+                               m_window->m_dragEndPos.x() < 0 ? (m_window->m_dragEndPos.x() / curScreenPix) : (m_window->m_dragEndPos.x()*curScreenPix),
+                               m_window->m_dragEndPos.y()<0?(m_window->m_dragEndPos.y()/curScreenPix):(m_window->m_dragEndPos.y()*curScreenPix));
         m_window->m_dragStartPos = QPoint(INT_MIN,INT_MIN);
         m_window->m_dragEndPos = QPoint(INT_MIN,INT_MIN);
-        m_window->close();
+        //m_window->close();
 
     }
     else
