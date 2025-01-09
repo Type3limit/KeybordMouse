@@ -13,6 +13,8 @@
 #include <QPainterPath>
 
 #include "ElaTheme.h"
+#include "GlobalKeyHook.h"
+#include "optionnalchain.h"
 #include "helpers/clickthroughwindow.h"
 #include "helpers/keypresshandler.h"
 
@@ -23,11 +25,22 @@ FullScreenAreaWindow::FullScreenAreaWindow(QWidget* parent)
     :QWidget(parent)
 {
 
-    setFocusPolicy(Qt::StrongFocus);
+    setFocusPolicy(Qt::NoFocus);
     setMouseTracking(false);
     m_keyPressHandler = KeyEventHandler::instance();
     m_keyPressHandler->setWindow(this);
-    ClickThroughWindow::enableClickThrough(this);
+    m_globalKeyboardHook = new GlobalKeyboardHook(this);
+    connect(m_globalKeyboardHook,&GlobalKeyboardHook::keyPressed,this,[&](const KeyInfo& keyInfo)
+    {
+        qDebug()<<"key pressed:"<<keyInfo.key<<"+"<<keyInfo.modifiers;
+        m_keyPressHandler->handleKeyPress(new QKeyEvent(QEvent::KeyPress,keyInfo.key,keyInfo.modifiers));
+        update();
+    });
+    connect(m_globalKeyboardHook,&GlobalKeyboardHook::keyReleased,this,[&](const KeyInfo& keyInfo)
+    {
+        //m_keyPressHandler->handleKeyPress(new QKeyEvent(QEvent::KeyRelease,keyInfo.key,keyInfo.modifiers));
+        //update();
+    });
 }
 
 QSize FullScreenAreaWindow::getCellColumnAndRowCount(int n, QRect area)
@@ -47,10 +60,6 @@ void FullScreenAreaWindow::resetStatus()
     m_thirdPos = -1;
 }
 
-void FullScreenAreaWindow::setCurrentScreen(QScreen* curScr)
-{
-    m_currentScreen = curScr;
-}
 
 void FullScreenAreaWindow::setConfig()
 {
@@ -60,13 +69,26 @@ void FullScreenAreaWindow::setConfig()
 QScreen* FullScreenAreaWindow::currentScreen()
 {
     if (m_currentScreen==nullptr)
-        m_currentScreen = QGuiApplication::primaryScreen();
+    {
+        auto screens = QGuiApplication::screens();
+        m_currentScreen =
+         from(screens).firstOf([&](const QScreen* scr)
+         {
+             return scr->geometry().contains(mapToGlobal(QCursor::pos()));
+         },QGuiApplication::primaryScreen()).get();
+    }
     return m_currentScreen;
+}
+
+void FullScreenAreaWindow::setCurrentScreen(QScreen* screen)
+{
+    m_currentScreen = screen;
 }
 
 
 void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
 
+    auto date = QDateTime::currentDateTime();
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
@@ -75,8 +97,8 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
     auto cellStrInUse = ScreenOptionModeStr[Config::instance()->getSubCellOptionMode()];
 
     int drawCount = screenStrInUse.count();
-    int xDistance = screenGeometry.width() / drawCount;
-    int yDistance = screenGeometry.height() / drawCount;
+    double xDistance = screenGeometry.width() / (double)drawCount;
+    double yDistance = screenGeometry.height() / (double)drawCount;
 
     // 填充半透明背景
     painter.fillRect(screenGeometry, QColor(0, 0, 0, 128));
@@ -103,9 +125,9 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
 
     // 填充网格和绘制文字
     for (int row = 0; row < drawCount; ++row) {
-        int xPos = row * xDistance;
+        double xPos = row * xDistance;
         for (int col = 0; col < drawCount; ++col) {
-            int yPos = col * yDistance;
+            double yPos = col * yDistance;
             QRect cellRect(xPos, yPos, xDistance, yDistance);
 
             // 处理选中的行或单元格
@@ -124,10 +146,10 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
 
                     int cellIndex = 0;
                     for (int subRow = 0; subRow < subCellSize.height(); ++subRow) {
-                        int subY = yPos + subRow * ySubSize;
+                        double subY = yPos + subRow * ySubSize;
                         painter.drawLine(cellRect.left(), subY, cellRect.right(), subY);
                         for (int subCol = 0; subCol < subCellSize.width(); ++subCol) {
-                            int subX = xPos + subCol * xSubSize;
+                            double subX = xPos + subCol * xSubSize;
                             painter.drawLine(subX, cellRect.top(), subX, cellRect.bottom());
 
                             QRect subCellRect(subX, subY, xSubSize, ySubSize);
@@ -164,17 +186,38 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
             painter.fillPath(path,QColor(124,252,0,128));
         }
     }
+    qDebug()<<"full screen window paint event :" << (QDateTime::currentDateTime() - date);
 }
 
 
 
 void FullScreenAreaWindow::keyPressEvent(QKeyEvent* event)
 {
-    m_keyPressHandler->handleKeyPress(event);
-    update();
+    QWidget::keyPressEvent(event);
 }
 
 void FullScreenAreaWindow::keyReleaseEvent(QKeyEvent* event)
 {
     QWidget::keyReleaseEvent(event);
+}
+
+void FullScreenAreaWindow::hideEvent(QHideEvent* event)
+{
+    resetStatus();
+    m_globalKeyboardHook->stopHook();
+    QWidget::hideEvent(event);
+}
+
+void FullScreenAreaWindow::closeEvent(QCloseEvent* event)
+{
+    resetStatus();
+    m_globalKeyboardHook->stopHook();
+    QWidget::closeEvent(event);
+}
+
+void FullScreenAreaWindow::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    m_globalKeyboardHook->startHook();
+    ClickThroughWindow::enableClickThrough(this);
 }

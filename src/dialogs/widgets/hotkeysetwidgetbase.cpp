@@ -86,10 +86,8 @@ void HotKeySetWidgetBase::removeWidget()
 {
     if (ui->listWidget->currentIndex().isValid())
     {
-        auto curItem = ui->listWidget->currentItem();
-        auto itemWidget =  ui->listWidget->itemWidget(curItem);
-        ui->listWidget->removeItemWidget(curItem);
-        m_sequenceEdits.removeAll(itemWidget);
+        delete ui->listWidget->takeItem(ui->listWidget->currentIndex().row());
+
     }
 }
 

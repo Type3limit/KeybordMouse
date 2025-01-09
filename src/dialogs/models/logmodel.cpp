@@ -32,6 +32,10 @@ void LogModel::setLogList(QStringList list)
 
 void LogModel::appendLogList(QString log)
 {
+    int maxLogs = 10000;
+    if (_logList.size() >= maxLogs) {
+        _logList.removeFirst();
+    }
     beginResetModel();
     this->_logList.append(log);
     endResetModel();

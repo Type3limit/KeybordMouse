@@ -62,7 +62,7 @@ bool ClickThroughWindow::enableClickThroughWindows(QWidget* window) {
     SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
 
     // 更新窗口
-    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
     return true;
@@ -86,11 +86,31 @@ bool ClickThroughWindow::enableClickThroughLinux(QWidget* window) {
 
     Window win = window->winId();
 
-    // Create empty region for input shape
+    // 设置窗口的输入区域为空（点击穿透）
     Region region = XCreateRegion();
     XShapeCombineRegion(display, win, ShapeInput, 0, 0, region, ShapeSet);
     XDestroyRegion(region);
 
+    // 设置窗口为始终置顶
+    Atom stateAbove = XInternAtom(display, "_NET_WM_STATE_ABOVE", False);
+    Atom state = XInternAtom(display, "_NET_WM_STATE", False);
+
+    XClientMessageEvent event;
+    event.type = ClientMessage;
+    event.window = win;
+    event.message_type = state;
+    event.format = 32;
+    event.data.l[0] = 1; // _NET_WM_STATE_ADD
+    event.data.l[1] = stateAbove;
+    event.data.l[2] = 0; // No second property
+    event.data.l[3] = 0;
+    event.data.l[4] = 0;
+
+    XSendEvent(display, DefaultRootWindow(display), False,
+               SubstructureRedirectMask | SubstructureNotifyMask,
+               reinterpret_cast<XEvent *>(&event));
+
+    XFlush(display);
     return true;
 }
 
@@ -100,28 +120,46 @@ bool ClickThroughWindow::disableClickThroughLinux(QWidget* window) {
 
     Window win = window->winId();
 
-    // Reset input shape to window bounds
+    // 恢复窗口的输入区域
     XRectangle rect = {0, 0, (unsigned short)window->width(), (unsigned short)window->height()};
     Region region = XCreateRegion();
     XUnionRectWithRegion(&rect, region, region);
     XShapeCombineRegion(display, win, ShapeInput, 0, 0, region, ShapeSet);
     XDestroyRegion(region);
 
+    // 取消窗口的始终置顶
+    Atom stateAbove = XInternAtom(display, "_NET_WM_STATE_ABOVE", False);
+    Atom state = XInternAtom(display, "_NET_WM_STATE", False);
+
+    XClientMessageEvent event;
+    event.type = ClientMessage;
+    event.window = win;
+    event.message_type = state;
+    event.format = 32;
+    event.data.l[0] = 0; // _NET_WM_STATE_REMOVE
+    event.data.l[1] = stateAbove;
+    event.data.l[2] = 0; // No second property
+    event.data.l[3] = 0;
+    event.data.l[4] = 0;
+
+    XSendEvent(display, DefaultRootWindow(display), False,
+               SubstructureRedirectMask | SubstructureNotifyMask,
+               reinterpret_cast<XEvent *>(&event));
+
+    XFlush(display);
     return true;
 }
 
 #elif defined(Q_OS_MAC)
 bool ClickThroughWindow::enableClickThroughMac(QWidget* window) {
     if (!window) return false;
-    // 获取窗口的 NSView 指针
-    void* nsViewPtr = reinterpret_cast<void*>(window->winId());
-    if (!nsViewPtr) return false;
 
     // 获取窗口的 CGWindowID
-    CGWindowID windowID = (CGWindowID)[reinterpret_cast<NSView*>(nsViewPtr) window].windowNumber;
+    CGWindowID windowID = static_cast<CGWindowID>(window->winId());
+    if (windowID == kCGNullWindowID) return false;
 
     // 创建一个空的区域（点击穿透）
-    CGRegionRef emptyRegion = CGRegionCreateEmpty();
+    CGRgnRef emptyRegion = CGRegionCreateEmpty();
 
     // 设置窗口的点击区域
     CGSSetWindowShape(
@@ -134,22 +172,22 @@ bool ClickThroughWindow::enableClickThroughMac(QWidget* window) {
     // 释放区域
     CGRegionRelease(emptyRegion);
 
+    // 设置窗口为始终置顶
+    CGSSetWindowLevel(CGMainDisplayID(), windowID, kCGMaximumWindowLevel);
+
     return true;
 }
 
 bool ClickThroughWindow::disableClickThroughMac(QWidget* window) {
     if (!window) return false;
 
-    // 获取窗口的 NSView 指针
-    void* nsViewPtr = reinterpret_cast<void*>(window->winId());
-    if (!nsViewPtr) return false;
-
     // 获取窗口的 CGWindowID
-    CGWindowID windowID = (CGWindowID)[reinterpret_cast<NSView*>(nsViewPtr) window].windowNumber;
+    CGWindowID windowID = static_cast<CGWindowID>(window->winId());
+    if (windowID == kCGNullWindowID) return false;
 
     // 获取窗口的原始区域
     CGRect windowBounds = CGRectMake(0, 0, window->width(), window->height());
-    CGRegionRef windowRegion = CGRegionCreateWithRect(windowBounds);
+    CGRgnRef windowRegion = CGRegionCreateWithRect(windowBounds);
 
     // 恢复窗口的点击区域
     CGSSetWindowShape(
@@ -161,6 +199,10 @@ bool ClickThroughWindow::disableClickThroughMac(QWidget* window) {
 
     // 释放区域
     CGRegionRelease(windowRegion);
+
+    // 取消窗口的始终置顶
+    CGSSetWindowLevel(CGMainDisplayID(), windowID, kCGNormalWindowLevel);
+
     return true;
 }
 #endif

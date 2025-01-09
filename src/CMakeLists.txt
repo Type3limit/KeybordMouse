@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1...3.25)
+cmake_minimum_required(VERSION 3.5)
 project(KeybordMouse)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -61,6 +61,22 @@ set(LinkLib
 
 
 list(APPEND LinkLib qhotkey ElaWidgetTools)
+if(Linux)
+    find_package(X11 REQUIRED)
+
+    find_package(Qt${QT_DEFAULT_MAJOR_VERSION} COMPONENTS X11Extras REQUIRED)
+
+    include_directories(${X11_INCLUDE_DIR})
+    include_directories(${Qt5Gui_PRIVATE_INCLUDE_DIRS})
+    list(APPEND LinkLib
+            ${X11_LIBRARIES}
+            Qt${QT_DEFAULT_MAJOR_VERSION}::X11Extras)
+
+
+    list(APPEND RESOURCES
+            helper/qhotkey_x11.cpp
+    )
+endif()
 
 if(WIN32)
     add_executable(${CMAKE_PROJECT_NAME} WIN32 ${RESOURCES})

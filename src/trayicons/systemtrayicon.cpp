@@ -81,30 +81,28 @@ SystemTrayIcon::~SystemTrayIcon()
 
 void SystemTrayIcon::showIcon()
 {
-
     m_systemTrayIcon->show();
-
 }
 
 void SystemTrayIcon::hideIcon()
 {
-
     m_systemTrayIcon->hide();
-
 }
 
 
 void SystemTrayIcon::initConfig()
 {
-   m_fullScreenAreaWindow->setConfig();
+    m_fullScreenAreaWindow->setConfig();
 }
 
 void SystemTrayIcon::initWindow()
 {
     m_fullScreenAreaWindow = new FullScreenAreaWindow(nullptr);
-    m_fullScreenAreaWindow->setAttribute(Qt::WA_DeleteOnClose,false);
+    m_fullScreenAreaWindow->setAttribute(Qt::WA_DeleteOnClose, false);
+    m_fullScreenAreaWindow->show();
+    m_fullScreenAreaWindow->close();
     m_settingWindow = new SettingWindow(nullptr);
-    m_settingWindow->setAttribute(Qt::WA_DeleteOnClose,false);
+    m_settingWindow->setAttribute(Qt::WA_DeleteOnClose, false);
 }
 
 void SystemTrayIcon::initMenus()
@@ -146,30 +144,33 @@ void SystemTrayIcon::initSignals()
     {
         if (UserMessageBox::ButtonType::Ok == UserMessageBox::question(nullptr, u8"即将退出", u8"确认退出吗？"))
         {
-            qApp->quit();
+            qApp->exit(0);
         }
     });
-    connect(GlobalSignal::instance(),&GlobalSignal::requestShowMessage,this,[&](const QString& message)
+    connect(GlobalSignal::instance(), &GlobalSignal::requestShowMessage, this, [&](const QString& message)
     {
-        m_systemTrayIcon->showMessage(u8"KeybordMouse",message);
+        m_systemTrayIcon->showMessage(u8"KeybordMouse", message);
     });
-    connect(GlobalSignal::instance(),&GlobalSignal::requestOpenSettingWindow,this,[&]()
+    connect(GlobalSignal::instance(), &GlobalSignal::requestOpenSettingWindow, this, [&]()
     {
-       if (m_settingWindow)
-       {
-           m_settingWindow->moveToCenter();
-           m_settingWindow->show();
-       }
+        if (m_settingWindow)
+        {
+            m_settingWindow->moveToCenter();
+            m_settingWindow->show();
+            // m_settingWindow->raise();
+            // m_settingWindow->setFocus(Qt::TabFocusReason);
+            // m_settingWindow->activateWindow();
+        }
     });
 
-    connect(GlobalSignal::instance(),&GlobalSignal::requestCloseSettingWindow,this,[&]()
-   {
-      if (m_settingWindow)
-      {
-          m_settingWindow->close();
-      }
-   });
-    connect(GlobalSignal::instance(),&GlobalSignal::requestOpenFullScreenWindow,this,[&]()
+    connect(GlobalSignal::instance(), &GlobalSignal::requestCloseSettingWindow, this, [&]()
+    {
+        if (m_settingWindow)
+        {
+            m_settingWindow->close();
+        }
+    });
+    connect(GlobalSignal::instance(), &GlobalSignal::requestOpenFullScreenWindow, this, [&]()
     {
         if (m_fullScreenAreaWindow)
         {
@@ -177,34 +178,32 @@ void SystemTrayIcon::initSignals()
             auto screenInUse = from(QGuiApplication::screens()).firstOf([&](QScreen* scr)
             {
                 return scr->geometry().contains(QCursor::pos());
-            },primary).get();
-            qDebug()<<"full screen window start in screen:"<<screenInUse->name();
+            }, primary).get();
+            qDebug() << "full screen window start in screen:" << screenInUse->name();
             m_fullScreenAreaWindow->setGeometry(screenInUse->geometry());
-            qDebug()<<"full screen window with geometry:" << screenInUse->geometry();
-            m_fullScreenAreaWindow->hide();
-            m_fullScreenAreaWindow->showNormal();
-            m_fullScreenAreaWindow->raise();
-            m_fullScreenAreaWindow->setFocus(Qt::TabFocusReason);
-            m_fullScreenAreaWindow->activateWindow();
+            qDebug() << "full screen window with geometry:" << screenInUse->geometry();
+            m_fullScreenAreaWindow->show();
+            // m_fullScreenAreaWindow->raise();
+            // m_fullScreenAreaWindow->setFocus(Qt::TabFocusReason);
+            // m_fullScreenAreaWindow->activateWindow();
         }
         else
         {
-            qDebug()<<"full screen window not exist";
+            qDebug() << "full screen window not exist";
         }
-    },Qt::QueuedConnection);
+    });
 
-    connect(GlobalSignal::instance(),&GlobalSignal::requestCloseFullScreenWindow,this,[&]()
+    connect(GlobalSignal::instance(), &GlobalSignal::requestCloseFullScreenWindow, this, [&]()
     {
         if (m_fullScreenAreaWindow)
         {
             m_fullScreenAreaWindow->close();
         }
-    },Qt::QueuedConnection);
+    });
 }
 
 void SystemTrayIcon::updateTrayIconTip(const QString& tip)
 {
-
     m_systemTrayIcon->setToolTip(tip);
 }
 

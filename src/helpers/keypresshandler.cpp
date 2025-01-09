@@ -117,6 +117,13 @@ void KeyEventHandler::registHotKeys()
 
 void KeyEventHandler::CancelSelection(QKeyEvent* event)
 {
+    if (m_startDrag)//cancel drag option
+    {
+        m_startDrag = false;
+        m_window->m_dragStartPos = QPoint(INT_MIN, INT_MIN);
+        m_window->m_dragEndPos = QPoint(INT_MIN, INT_MIN);
+    }
+
     if (m_window->m_thirdPos >= 0)
     {
         m_window->m_thirdPos = -1;
@@ -141,15 +148,13 @@ void KeyEventHandler::SwitchScreen(QKeyEvent* event)
 {
     auto screens = QGuiApplication::screens();
     auto curIndex = screens.indexOf(m_window->currentScreen());
-    curIndex += 1;
-
-    if (curIndex >= screens.count())
-        curIndex = 0;
-    if (curIndex < 0)
-        curIndex = screens.count() - 1;
-
+    curIndex += 1 ;
+    curIndex %= screens.count();
+    qDebug() << "switch to screen:" << screens[curIndex]->name();
+    QCursor::setPos(screens[curIndex]->geometry().center());
     m_window->setCurrentScreen(screens[curIndex]);
-    m_window->setGeometry(m_window->currentScreen()->geometry());
+    m_window->setGeometry(screens[curIndex]->geometry());
+    m_window->update();
     event->accept();
 }
 
@@ -205,8 +210,8 @@ void KeyEventHandler::onKeyMoveMouse()
     if (m_window->m_firstPos >= 0 && m_window->m_secondPos >= 0)
     {
         auto screenGeometry = m_window->currentScreen()->geometry();
-        auto xDistance = screenGeometry.width() / curKeysInUse.count();
-        auto yDistance = screenGeometry.height() / curKeysInUse.count();
+        auto xDistance = screenGeometry.width() / (double)curKeysInUse.count();
+        auto yDistance = screenGeometry.height() / (double)curKeysInUse.count();
         auto curRect = QRect(m_window->m_firstPos * xDistance, m_window->m_secondPos * yDistance,
                              xDistance, yDistance);
 

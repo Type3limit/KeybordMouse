@@ -9,6 +9,7 @@
 
 #include "helpers/config.h"
 
+class GlobalKeyboardHook;
 class KeyEventHandler;
 
 class FullScreenAreaWindow:public QWidget {
@@ -23,7 +24,8 @@ public:
 
     QScreen* currentScreen();
 
-    void setCurrentScreen(QScreen* curScr);
+
+    void setCurrentScreen(QScreen* screen);
 
     void setConfig();
 
@@ -34,28 +36,27 @@ protected:
 
     void keyReleaseEvent(QKeyEvent* event) override;
 
+    void hideEvent(QHideEvent* event) override;
     void closeEvent(QCloseEvent* event) override;
 
-    QScreen* m_currentScreen{nullptr};
+    void showEvent(QShowEvent* event) override;
 
     int m_firstPos = -1;
     int m_secondPos = -1;
     int m_thirdPos = -1;
 
+    QScreen* m_currentScreen{nullptr};
 
     QPoint m_dragStartPos{INT_MIN,INT_MIN};
     QPoint m_dragEndPos{INT_MIN,INT_MIN};
 
     KeyEventHandler* m_keyPressHandler {nullptr};
 
+    GlobalKeyboardHook* m_globalKeyboardHook{nullptr};
+
     friend class KeyEventHandler;
 };
 
-inline void FullScreenAreaWindow::closeEvent(QCloseEvent* event)
-{
-    resetStatus();
-    QWidget::closeEvent(event);
-}
 
 
 #endif //FULLSCREENAREAWINDOW_H
