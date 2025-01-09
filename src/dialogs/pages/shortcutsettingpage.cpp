@@ -79,10 +79,10 @@ ShortCutSettingPage::~ShortCutSettingPage()
 
 void ShortCutSettingPage::initUI()
 {
-    for (int i = 0 ;i<n_ConfigType;i++)
+    for (int i = 0 ;i<n_hotkeyType;i++)
     {
         auto setWidget = new HotKeySetWidgetBase(this);
-        setWidget->setHotKeyEditType(static_cast<ConfigType>(i));
+        setWidget->setHotKeyEditType(static_cast<HotKeyTypes>(i));
         m_widgets.push_back(setWidget);
         QFrame* line = new QFrame(this);
         line->setFixedHeight(2);

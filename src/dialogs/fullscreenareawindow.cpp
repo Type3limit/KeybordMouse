@@ -152,17 +152,15 @@ void FullScreenAreaWindow::paintEvent(QPaintEvent* event) {
     //绘制拖拽位置
     if (m_dragStartPos.x() != INT_MIN && m_dragStartPos.y() != INT_MIN )
     {
-        auto curStartPos = mapFromGlobal(m_dragStartPos);
         painter.setPen(QPen(QColor(124,252,0,128), 2));
         if (m_dragEndPos.x() != INT_MIN && m_dragEndPos.y() != INT_MIN)
         {
-            auto curEndPos = mapFromGlobal(m_dragEndPos);
-            painter.drawRect(QRect{ curStartPos,curEndPos });
+            painter.drawRect(QRect{ m_dragStartPos,m_dragEndPos });
         }
         else
         {
             QPainterPath path;
-            path.addEllipse(curStartPos,5,5);
+            path.addEllipse(m_dragStartPos,5,5);
             painter.fillPath(path,QColor(124,252,0,128));
         }
     }

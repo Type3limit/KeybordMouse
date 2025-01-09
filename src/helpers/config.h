@@ -60,7 +60,7 @@ const QList<Qt::Key> ScrrenOptionModeKey[2] =
     }
 };
 
-enum ConfigType
+enum HotKeyTypes
 {
     ShowFullScreenHotKey = 0,
     CloseWindowHotKey,
@@ -86,7 +86,7 @@ enum ConfigType
     OpenSettingWindowHotKey,
     CloseSettingWindowHotKey,
 
-    n_ConfigType
+    n_hotkeyType
 };
 
 class Config
@@ -96,15 +96,15 @@ public:
 
     bool isDefault() const;
 
-    QList<QKeySequence> getHotkeySequence(ConfigType type) const;
+    QList<QKeySequence> getHotkeySequence(HotKeyTypes type) const;
 
-    QString getHotkeyDisplayName(ConfigType type) const;
+    QString getHotkeyDisplayName(HotKeyTypes type) const;
 
-    void addHotkeySequence(ConfigType type, QKeySequence sequence);
+    void addHotkeySequence(HotKeyTypes type, QKeySequence sequence);
 
-    void setHotkeySequence(ConfigType type, QList<QKeySequence> sequences);
+    void setHotkeySequence(HotKeyTypes type, QList<QKeySequence> sequences);
 
-    void resetHotKeySequence(ConfigType type);
+    void resetHotKeySequence(HotKeyTypes type);
 
     void setOptionMode(ScreenOptionMode mode);
 
@@ -131,7 +131,7 @@ public:
 private:
     const QString ConfigPath = "./config.json";
 
-    QHash<ConfigType, QList<QKeySequence>> hotkeySequence = {
+    QHash<HotKeyTypes, QList<QKeySequence>> hotkeySequence = {
 
         {ShowFullScreenHotKey, {QKeySequence(Qt::AltModifier | Qt::Key_S)}},
 
@@ -178,7 +178,7 @@ private:
     };
 
 
-    QHash<ConfigType, QList<QKeySequence>> defaultHotkeySequence = {
+    QHash<HotKeyTypes, QList<QKeySequence>> defaultHotkeySequence = {
 
         {ShowFullScreenHotKey, {QKeySequence(Qt::AltModifier | Qt::Key_S)}},
 
@@ -225,7 +225,7 @@ private:
     };
 
 
-    const QHash<ConfigType, QString> hotkeyStr = {
+    const QHash<HotKeyTypes, QString> hotkeyStr = {
         KEY_STRV(ShowFullScreenHotKey),
         KEY_STRV(CloseWindowHotKey),
         KEY_STRV(CancelSelectionHotKey),
@@ -248,7 +248,7 @@ private:
         KEY_STRV(CloseSettingWindowHotKey)
     };
 
-    const QHash<ConfigType, QString> hotkeyDisplayStr = {
+    const QHash<HotKeyTypes, QString> hotkeyDisplayStr = {
         {ShowFullScreenHotKey, u8"显示窗口"},
         {CloseWindowHotKey, u8"关闭窗口"},
         {CancelSelectionHotKey, u8"取消选择"},

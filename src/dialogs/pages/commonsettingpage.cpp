@@ -11,14 +11,13 @@
 #include "ElaToggleSwitch.h"
 
 CommonSettingPage::CommonSettingPage(QWidget* parent)
-    :ElaScrollPage(parent)
+    : ElaScrollPage(parent)
 {
     initUI();
 }
 
 CommonSettingPage::~CommonSettingPage()
 {
-
 }
 
 void CommonSettingPage::initUI()
@@ -30,10 +29,11 @@ void CommonSettingPage::initUI()
     m_layout->setContentsMargins(20, 0, 20, 0);
     m_layout->setSpacing(15);
 
-    auto mainOptLayout = new  QHBoxLayout();
+    auto mainOptLayout = new QHBoxLayout();
 
-    ElaText * mainLabel = new ElaText(u8" 主要按键方案:", centralWidget);
+    ElaText* mainLabel = new ElaText(u8" 主要按键方案:", centralWidget);
     mainLabel->setTextStyle(ElaTextType::TextStyle::BodyStrong);
+    mainLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     ElaComboBox* mainOption = new ElaComboBox(centralWidget);
     mainOption->addItems(ScreenOptionModeDisplayStr);
@@ -42,9 +42,10 @@ void CommonSettingPage::initUI()
     mainOptLayout->addWidget(mainOption);
 
 
-    auto cellOptLayout = new  QHBoxLayout();
-    ElaText * cellLabel = new ElaText(u8" 次要按键方案:", centralWidget);
+    auto cellOptLayout = new QHBoxLayout();
+    ElaText* cellLabel = new ElaText(u8" 次要按键方案:", centralWidget);
     cellLabel->setTextStyle(ElaTextType::TextStyle::BodyStrong);
+    cellLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     ElaComboBox* cellOption = new ElaComboBox(centralWidget);
     cellOption->addItems(ScreenOptionModeDisplayStr);
@@ -53,36 +54,24 @@ void CommonSettingPage::initUI()
     cellOptLayout->addWidget(cellOption);
 
     auto closeWhenClickLayout = new QHBoxLayout();
-    ElaText* closeWhenClickLabel = new ElaText(u8"点击后关闭窗口:",centralWidget);
+    ElaText* closeWhenClickLabel = new ElaText(u8"点击后关闭窗口:", centralWidget);
+    closeWhenClickLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     closeWhenClickLabel->setTextStyle(ElaTextType::TextStyle::BodyStrong);
     ElaToggleSwitch* closeWhenClickSwitch = new ElaToggleSwitch(centralWidget);
     closeWhenClickSwitch->setIsToggled(Config::instance()->getCloseAfterClick());
     closeWhenClickLayout->addWidget(closeWhenClickLabel);
     closeWhenClickLayout->addWidget(closeWhenClickSwitch);
-    connect(closeWhenClickSwitch,&ElaToggleSwitch::toggled,this,[&](bool checked)
-    {
-        Config::instance()->setCloseAfterClick(checked);
-        Config::instance()->writeJson();
-        qDebug()<<"modify close after click mode:"<<checked;
-ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight,u8"完成",
-u8"点击后关闭方案保存成功",2000,this);
-    });
+
 
     auto closeWhenDragLayout = new QHBoxLayout();
-    ElaText* closeWhenDragLabel = new ElaText(u8"拖动后关闭窗口:",centralWidget);
+    ElaText* closeWhenDragLabel = new ElaText(u8"拖动后关闭窗口:", centralWidget);
+    closeWhenDragLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     closeWhenDragLabel->setTextStyle(ElaTextType::TextStyle::BodyStrong);
     ElaToggleSwitch* closeWhenDragSwitch = new ElaToggleSwitch(centralWidget);
     closeWhenDragSwitch->setIsToggled(Config::instance()->getCloseAfterDrag());
     closeWhenDragLayout->addWidget(closeWhenDragLabel);
     closeWhenDragLayout->addWidget(closeWhenDragSwitch);
-    connect(closeWhenDragSwitch,&ElaToggleSwitch::toggled,this,[&](bool checked)
-    {
-        Config::instance()->setCloseAfterDrag(checked);
-        Config::instance()->writeJson();
-        qDebug()<<"modify close after drag mode:"<<checked;
-ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight,u8"完成",
-u8"拖拽后关闭方案保存成功",2000,this);
-    });
+
 
     mainOptLayout->addStretch();
     m_layout->addLayout(mainOptLayout);
@@ -99,16 +88,32 @@ u8"拖拽后关闭方案保存成功",2000,this);
     {
         Config::instance()->setOptionMode((ScreenOptionMode)index);
         Config::instance()->writeJson();
-        qDebug()<<"modify main option mode:"<<ScreenOptionModeDisplayStr[index];
-        ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight,u8"完成",
-      u8"主要按键方案保存成功",2000,this);
+        qDebug() << "modify main option mode:" << ScreenOptionModeDisplayStr[index];
+        ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight, u8"完成",
+                               u8"主要按键方案保存成功", 2000, this);
     });
     connect(cellOption, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int index)
     {
         Config::instance()->setSubCellOptionMode((ScreenOptionMode)index);
         Config::instance()->writeJson();
-        qDebug()<<"modify subcell option mode:"<<ScreenOptionModeDisplayStr[index];
-        ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight,u8"完成",
-     u8"次要按键方案保存成功",2000,this);
+        qDebug() << "modify subcell option mode:" << ScreenOptionModeDisplayStr[index];
+        ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight, u8"完成",
+                               u8"次要按键方案保存成功", 2000, this);
+    });
+    connect(closeWhenClickSwitch, &ElaToggleSwitch::toggled, this, [&](bool checked)
+    {
+        Config::instance()->setCloseAfterClick(checked);
+        Config::instance()->writeJson();
+        qDebug() << "modify close after click mode:" << checked;
+        ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight, u8"完成",
+                               u8"点击后关闭方案保存成功", 2000, this);
+    });
+    connect(closeWhenDragSwitch, &ElaToggleSwitch::toggled, this, [&](bool checked)
+    {
+        Config::instance()->setCloseAfterDrag(checked);
+        Config::instance()->writeJson();
+        qDebug() << "modify close after drag mode:" << checked;
+        ElaMessageBar::success(ElaMessageBarType::PositionPolicy::TopRight, u8"完成",
+                               u8"拖拽后关闭方案保存成功", 2000, this);
     });
 }

@@ -63,7 +63,7 @@ private:
 
     FullScreenAreaWindow* m_window;
 
-    QMap<ConfigType,QList<QHotkey*>> m_globalHotKeys;
+    QMap<HotKeyTypes,QList<QHotkey*>> m_globalHotKeys;
 
     QMap<QKeySequence, void(KeyEventHandler::*)(QKeyEvent*)> m_keyActions;  // 按键映射表
 

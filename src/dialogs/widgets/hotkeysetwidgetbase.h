@@ -22,7 +22,7 @@ public:
     explicit HotKeySetWidgetBase(QWidget *parent = nullptr);
     ~HotKeySetWidgetBase() override;
 
-    void setHotKeyEditType(ConfigType type);
+    void setHotKeyEditType(HotKeyTypes type);
 
     void addWidget(const QKeySequence& sequence);
 
@@ -33,7 +33,7 @@ public:
     void onSave();
 private:
     Ui::HotKeySetWidgetBase *ui;
-    ConfigType m_type;
+    HotKeyTypes m_type;
     QList<QKeySequenceEdit*> m_sequenceEdits;
 };
 

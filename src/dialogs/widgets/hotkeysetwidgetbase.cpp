@@ -49,7 +49,7 @@ HotKeySetWidgetBase::~HotKeySetWidgetBase() {
     delete ui;
 }
 
-void HotKeySetWidgetBase::setHotKeyEditType(ConfigType type)
+void HotKeySetWidgetBase::setHotKeyEditType(HotKeyTypes type)
 {
     m_type = type;
 

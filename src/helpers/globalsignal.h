@@ -20,7 +20,7 @@ public:
     void requestCloseSettingWindow();
     void requestQuit();
     void requestShowMessage(const QString& message);
-    void requestModifyConfig(ConfigType type,const QVariant& data);
+    void requestModifyConfig(HotKeyTypes type,const QVariant& data);
 private:
     explicit GlobalSignal(QObject *parent = nullptr):QObject(parent){}
     static GlobalSignal s_signalProxy;
