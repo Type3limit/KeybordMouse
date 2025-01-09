@@ -1,2 +1,9 @@
 /cmake-build-relwithdebinfo/
 /cmake-build-debug/
+/.idea
+/.vs
+/bin/windows/Debug
+/CMakePresets.json
+/CMakeUserPresets.json
+/install
+/out/build/debug
