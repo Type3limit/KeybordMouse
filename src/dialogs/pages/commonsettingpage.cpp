@@ -2,7 +2,7 @@
 // Created by 58226 on 2025/1/8.
 //
 
-#include "screenselectionmodesetpage.h"
+#include "commonsettingpage.h"
 
 #include "config.h"
 #include "ElaComboBox.h"
@@ -10,18 +10,18 @@
 #include "ElaText.h"
 #include "ElaToggleSwitch.h"
 
-ScreenSelectionModeSetPage::ScreenSelectionModeSetPage(QWidget* parent)
+CommonSettingPage::CommonSettingPage(QWidget* parent)
     :ElaScrollPage(parent)
 {
     initUI();
 }
 
-ScreenSelectionModeSetPage::~ScreenSelectionModeSetPage()
+CommonSettingPage::~CommonSettingPage()
 {
 
 }
 
-void ScreenSelectionModeSetPage::initUI()
+void CommonSettingPage::initUI()
 {
     setPageTitleSpacing(5);
     QWidget* centralWidget = new QWidget(this);

@@ -25,14 +25,16 @@ endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin/${PLATFORM}/${BUILD_TYPE})
 
-
-find_package(Qt${QT_DEFAULT_MAJOR_VERSION} COMPONENTS
-        Core
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core
         Gui
         Svg
         Widgets
-        Network
-        REQUIRED)
+        Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core
+        Gui
+        Svg
+        Widgets
+        Network)
 
 
 file(GLOB_RECURSE RESOURCES "*.cpp" "*.h" "*.hpp" "*.ui" "*.qrc")

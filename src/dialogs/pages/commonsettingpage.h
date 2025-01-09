@@ -9,11 +9,11 @@
 #include "ElaScrollPage.h"
 
 
-class ScreenSelectionModeSetPage:public ElaScrollPage {
+class CommonSettingPage:public ElaScrollPage {
 
 public:
-    ScreenSelectionModeSetPage(QWidget* parent= nullptr);
-    ~ScreenSelectionModeSetPage();
+    CommonSettingPage(QWidget* parent= nullptr);
+    ~CommonSettingPage();
 
     void initUI();
 private:

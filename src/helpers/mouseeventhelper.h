@@ -78,6 +78,7 @@ private:
 
 public:
     static bool moveTo(int x, int y) {
+        qDebug() << "move mouse to[" << x << ":" << y<<"]";
 #ifdef _WIN32
         return SetCursorPos(x, y);
 #elif defined(__linux__)
