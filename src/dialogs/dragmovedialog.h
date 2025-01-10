@@ -48,8 +48,8 @@ protected:
     void mousePress(QMouseEvent*);
     void mouseRealese(QMouseEvent*);
     void mouseMove(QMouseEvent*);
-    void updateCursorShape(const QPoint &);
-    void calculateCursorPosition(const QPoint &, const QRect &, Edges &);
+    void updateCursorShape(const QPointF& pos);
+    void calculateCursorPosition(const QPointF& pos, const QRect&, Edges&);
 
 private:
     QWidget *_target = nullptr;
@@ -78,7 +78,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
 
 protected:
-    QPoint m_pos = {0,0};
+    QPointF m_pos = {0,0};
     bool m_leftButtonPressed = false;
     ResizeableHelper* m_frameLess = nullptr;
 };

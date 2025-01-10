@@ -427,6 +427,7 @@ LRESULT CALLBACK GlobalKeyboardHook::keyboardProc(int nCode, WPARAM wParam, LPAR
         KeyInfo keyInfo;
         keyInfo.nativeKey = kbStruct->vkCode;
         keyInfo.key = instance->nativeToQtKey(kbStruct->vkCode);
+        keyInfo.nativeModifier = instance->pressedModifiers.values();
         keyInfo.modifiers = instance->calculateCurrentModifiers();
         keyInfo.isRepeat = (kbStruct->flags & LLKHF_EXTENDED) != 0;
 

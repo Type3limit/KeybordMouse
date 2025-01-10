@@ -58,7 +58,7 @@ bool ResizeableHelper::eventFilter(QObject *o, QEvent*e) {
 }
 
 void ResizeableHelper::mouseHover(QHoverEvent *e) {
-    updateCursorShape(_target->mapToGlobal(e->pos()));
+    updateCursorShape(e->posF());
 }
 
 void ResizeableHelper::mouseLeave(QEvent *e) {
@@ -70,7 +70,7 @@ void ResizeableHelper::mouseLeave(QEvent *e) {
 void ResizeableHelper::mousePress(QMouseEvent *e) {
     if (e->button() & Qt::LeftButton) {
         _leftButtonPressed = true;
-        calculateCursorPosition(e->globalPos(), _target->frameGeometry(), _mousePress);
+        calculateCursorPosition(e->globalPosition(), _target->frameGeometry(), _mousePress);
         if (!_mousePress.testFlag(Edge::None)) {
             _rubberband->setGeometry(_target->frameGeometry());
         }
@@ -101,32 +101,32 @@ void ResizeableHelper::mouseMove(QMouseEvent *e) {
             int bottom = _rubberband->frameGeometry().bottom();
             switch (_mousePress) {
             case Edge::Top:
-                top = e->globalPos().y();
+                top = e->globalPosition().y();
                 break;
             case Edge::Bottom:
-                bottom = e->globalPos().y();
+                bottom = e->globalPosition().y();
                 break;
             case Edge::Left:
-                left = e->globalPos().x();
+                left = e->globalPosition().x();
                 break;
             case Edge::Right:
-                right = e->globalPos().x();
+                right = e->globalPosition().x();
                 break;
             case Edge::TopLeft:
-                top = e->globalPos().y();
-                left = e->globalPos().x();
+                top = e->globalPosition().y();
+                left = e->globalPosition().x();
                 break;
             case Edge::TopRight:
-                right = e->globalPos().x();
-                top = e->globalPos().y();
+                right = e->globalPosition().x();
+                top = e->globalPosition().y();
                 break;
             case Edge::BottomLeft:
-                bottom = e->globalPos().y();
-                left = e->globalPos().x();
+                bottom = e->globalPosition().y();
+                left = e->globalPosition().x();
                 break;
             case Edge::BottomRight:
-                bottom = e->globalPos().y();
-                right = e->globalPos().x();
+                bottom = e->globalPosition().y();
+                right = e->globalPosition().x();
                 break;
             }
             QRect newRect(QPoint(left, top), QPoint(right, bottom));
@@ -141,11 +141,11 @@ void ResizeableHelper::mouseMove(QMouseEvent *e) {
         }
     }
     else {
-        updateCursorShape(e->globalPos());
+        updateCursorShape(e->globalPosition());
     }
 }
 
-void ResizeableHelper::updateCursorShape(const QPoint &pos) {
+void ResizeableHelper::updateCursorShape(const QPointF &pos) {
     if (_target->isFullScreen() || _target->isMaximized()) {
         if (_cursorchanged) {
             _target->unsetCursor();
@@ -174,7 +174,7 @@ void ResizeableHelper::updateCursorShape(const QPoint &pos) {
     }
 }
 
-void ResizeableHelper::calculateCursorPosition(const QPoint &pos, const QRect &framerect, Edges &_edge) {
+void ResizeableHelper::calculateCursorPosition(const QPointF &pos, const QRect &framerect, Edges &_edge) {
     bool onLeft = pos.x() >= framerect.x() - _borderWidth && pos.x() <= framerect.x() + _borderWidth &&
         pos.y() <= framerect.y() + framerect.height() - _borderWidth && pos.y() >= framerect.y() + _borderWidth;
 
@@ -249,8 +249,8 @@ void DragMoveWidget::mouseMoveEvent(QMouseEvent* e)
     {
         return;
     }
-    QPoint posOffset = e->globalPos() - m_pos;
-    move(posOffset);
+    QPointF posOffset = e->globalPosition() - m_pos;
+    move(posOffset.toPoint());
 
 }
 
@@ -260,7 +260,7 @@ void DragMoveWidget::mousePressEvent(QMouseEvent* e)
     {
         return;
     }
-    m_pos = e->globalPos() - mapToGlobal(QPoint{0, 0});
+    m_pos = e->globalPosition() - mapToGlobal(QPoint{0, 0});
     m_leftButtonPressed = true;
 }
 

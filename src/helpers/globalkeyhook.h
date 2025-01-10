@@ -35,6 +35,7 @@ struct KeyInfo {
     int key;            // Qt键码
     int nativeKey;      // 原生键码
     Qt::KeyboardModifiers modifiers;  // 修饰键状态
+    QList<ModifierKey> nativeModifier;  // 原生修饰键
     bool isRepeat;      // 是否是重复按键
 };
 
